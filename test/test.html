@@ -1,0 +1,12 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+<script src="tinytest.js"></script>
+<script src="../src/game/player-data.js"></script>
+<script src="../src/game/tile.js"></script>
+<script src="../src/game/monopoly.js"></script>
+<script src="./monopoly-tests.js"></script>
+<script>
+  let testObj = {}
+  Object.assign(testObj, MonopolyTests)
+  // Run
+  tests(testObj)
+</script>
