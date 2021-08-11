@@ -75,8 +75,7 @@ class Monopoly {
         new Card("Grand Opera Night. Collect $50 from every player for opening night seats.", (game) => game.collectFromOthers(game.getPlayer(), 50)),
         new Card("Holiday Fund matures. Received $100", (game) => game.addCash(game.getPlayer(), 100)),
         new Card("Income tax refund. Collect $20", (game) => game.addCash(game.getPlayer(), 20)),
-        new Card("It's your birthday. Collect $10 from every player.", (game) => game.collectFromOthers(game.getPlayer(), 10),
-        
+        new Card("It's your birthday. Collect $10 from every player.", (game) => game.collectFromOthers(game.getPlayer(), 10))
     ]
 
     constructor(playerDatas) {
