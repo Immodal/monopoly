@@ -88,11 +88,12 @@ const MonopolyTests = {
 
         // Player plays extra turn if roll double while less than max
         game = new Monopoly([new PlayerData("a"), new PlayerData("b")])
+        let dice = game.rollDie()
         eq(game.playerInd, 0)
         eq(game.nthDouble, 0)
         eq(game.players[game.playerInd].jailTime, 0)
         for (let i=0; i<Monopoly.MAX_DBLS; i++) {
-            const dice = game.rollDie()
+            dice = game.rollDie()
             game.turn(dice, dice)
             eq(game.playerInd, 0)
             eq(game.nthDouble, i+1)
@@ -108,8 +109,8 @@ const MonopolyTests = {
         eq(game.playerInd, 0)
         eq(game.nthDouble, 0)
         eq(game.players[game.playerInd].jailTime, 0)
-        for (let i=0; i<Monopoly.MAX_DBLS; i++) {
-            const dice = game.rollDie()
+        for (let i=0; i<=Monopoly.MAX_DBLS; i++) {
+            dice = game.rollDie()
             game.turn(dice, dice)
             if (i==Monopoly.MAX_DBLS) {
                 eq(game.playerInd, 1)
@@ -122,6 +123,20 @@ const MonopolyTests = {
             }
         }
         
-        // If in jail
+        // If in jail, rolling not double reduces jailTime by 1
+        game.playerInd = 0
+        eq(game.players[game.playerInd].jailTime, Monopoly.JAIL_TIME)
+        game.turn(game.rollDie(1, 3), game.rollDie(4, 6))
+        eq(game.playerInd, 1)
+        eq(game.players[game.playerInd-1].jailTime, Monopoly.JAIL_TIME-1)
+
+        // Roll double, move and change player
+        game.playerInd = 0
+        game.players[game.playerInd].jailTime = Monopoly.JAIL_TIME
+        dice = game.rollDie()
+        game.turn(dice, dice)
+        eq(game.playerInd, 1)
+        eq(game.players[game.playerInd-1].jailTime, 0)
+        eq(game.players[game.playerInd-1].pos, Monopoly.JAIL_IND+dice*2)
     }
 }
