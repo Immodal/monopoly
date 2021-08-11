@@ -12,18 +12,19 @@ function setup() {
     game = new Monopoly([
         new PlayerData('a'),
         new PlayerData('b'),
-        new PlayerData('c'),
-        new PlayerData('d'),
-        new PlayerData('e'),
-        new PlayerData('f'),
-        new PlayerData('g'),
-        new PlayerData('h')
+        //new PlayerData('c'),
+        //new PlayerData('d'),
+        //new PlayerData('e'),
+        //new PlayerData('f'),
+        //new PlayerData('g'),
+        //new PlayerData('h')
     ])
+    game.log_turns = true
 }
 
 function draw() {
     background(230)
-    game.turn()
+    //game.turn()
     board.draw(game)
 }
 

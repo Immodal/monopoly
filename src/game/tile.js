@@ -2,6 +2,8 @@ class Tile {
     constructor(name) {
         this.name = name
     }
+
+    arrive() {}
 }
 
 
@@ -9,6 +11,11 @@ class GoTile extends Tile {
     constructor(name, amount) {
         super(name)
         this.amount = amount
+    }
+
+    arrive(game) {
+        game.addCash(game.getPlayer(), this.amount)
+        game.log(`Passed Go, collecting ${this.amount}`)
     }
 }
 
@@ -25,6 +32,10 @@ class PropertyTile extends Tile {
 class CommunityChestTile extends Tile {
     constructor(name) {
         super(name)
+    }
+
+    arrive(game) {
+
     }
 }
 
@@ -61,5 +72,9 @@ class FreeParkingTile extends Tile {
 class GoToJailTile extends Tile {
     constructor(name) {
         super(name)
+    }
+
+    arrive(game) {
+        game.goToJail(game.getPlayer())
     }
 }

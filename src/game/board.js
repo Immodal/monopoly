@@ -6,14 +6,12 @@ class Board {
     static GROUP_COLORS = {
         [`${Monopoly.GROUPS.BROWN}`]: '#8B4513',
         [`${Monopoly.GROUPS.TEAL}`]: '#00cdcd',
-        [`${Monopoly.GROUPS.RAIL}`]: null,
         [`${Monopoly.GROUPS.PINK}`]: '#ffa7b6',
         [`${Monopoly.GROUPS.ORANGE}`]: '#ffa500',
         [`${Monopoly.GROUPS.RED}`]: '#ff0000',
         [`${Monopoly.GROUPS.YELLOW}`]: '#ffff00',
         [`${Monopoly.GROUPS.GREEN}`]: '#33cc33',
-        [`${Monopoly.GROUPS.BLUE}`]: '#0033cc',
-        [`${Monopoly.GROUPS.UTILITY}`]: null,
+        [`${Monopoly.GROUPS.BLUE}`]: '#0033cc'
     }
     static PLAYER_COLORS = [
         '#8B4513','#00cdcd','#ffa7b6','#ffa500',
@@ -99,7 +97,7 @@ class Board {
     drawPlayers(game) {
         stroke(0)
         for (let i=0; i<game.players.length; i++) {
-            const player = game.players[i]
+            const player = game.getPlayers()[i]
             const tile = this.tiles[player.pos]
             fill(Board.PLAYER_COLORS[i])
             circle(
