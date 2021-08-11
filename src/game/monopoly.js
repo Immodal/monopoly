@@ -1,6 +1,7 @@
 
 
 class Monopoly {
+    static MAX_PLAYERS = 8
     static STARTING_BALANCE = 1500
     static MAX_DBLS = 2
     static JAIL_TIME = 3
