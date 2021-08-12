@@ -4,7 +4,7 @@ let board = null
 let game = null
 
 function setup() {
-    frameRate(5)
+    frameRate(1)
     const canvas = createCanvas(CANVAS_SIZE, CANVAS_SIZE)
     canvas.parent("#cv")
 
@@ -24,7 +24,7 @@ function setup() {
 
 function draw() {
     background(230)
-    //game.turn()
+    game.turn()
     board.draw(game)
 }
 

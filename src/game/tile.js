@@ -45,12 +45,20 @@ class TaxTile extends Tile {
         super(name)
         this.amount = amount
     }
+
+    arrive() {
+        game.addCash(game.getPlayer(), -this.amount)
+    }
 }
 
 
 class ChanceTile extends Tile {
     constructor(name) {
         super(name)
+    }
+
+    arrive(game) {
+        game.drawChanceCard().activate(game)
     }
 }
 

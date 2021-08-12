@@ -17,7 +17,14 @@ class Monopoly {
     }
     // Update Indices if tile order changes
     static GO_IND = 0
+    static KINGS_CROSS_IND = 5
     static JAIL_IND = 10
+    static PALL_MALL_IND = 11
+    static TRAFALGAR_IND = 24
+    static MAYFAIR_IND = 39
+    static UTILITY_INDS = [12, 28]
+    static RAIL_INDS = [Monopoly.KINGS_CROSS_IND, 15, 25, 35]
+
     static TILES = [
         // 0
         new GoTile("Go", 200),
@@ -69,7 +76,7 @@ class Monopoly {
         new Card("Bank error in your favor. Collect $200.", (game) => game.addCash(game.getPlayer(), 200)),
         new Card("Doctor's fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
         new Card("From sale of stock you get $50.", (game) => game.addCash(game.getPlayer(), 50)),
-        new Card("Get Out of Jail Free", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
+        new Card("Get Out of Jail Free.", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
         new Card("Grand Opera Night. Collect $50 from every player for opening night seats.", 
             (game) => game.collectFromOthers(game.getPlayer(), 50)
         ),
@@ -78,7 +85,7 @@ class Monopoly {
         new Card("It's your birthday. Collect $10 from every player.", 
             (game) => game.collectFromOthers(game.getPlayer(), 10)
         ),
-        new Card("Life insurance matures - Collect $100.", (game) => game.addCash(game.getPlayer(), 50)),
+        new Card("Life insurance matures - Collect $100.", (game) => game.addCash(game.getPlayer(), 100)),
         new Card("Hospital Fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
         new Card("School Fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
         new Card("Receive $25 consultancy fee.", (game) => game.addCash(game.getPlayer(), 25)),
@@ -90,10 +97,37 @@ class Monopoly {
         ),
         new Card("You inherit $100.", (game) => game.addCash(game.getPlayer(), 100))
     ]
+    static CHANCE_CARDS = [
+        new Card("Advance to \"Go\"", (game) => game.goTo(game.getPlayer(), Monopoly.GO_IND)),
+        new Card("Advance to Trafalgar Square. If you pass Go, collect $200.", (game) => game.goTo(game.getPlayer(), Monopoly.TRAFALGAR_IND)),
+        new Card("Advance to Pall Mall. If you pass Go, collect $200.", (game) => game.goTo(game.getPlayer(), Monopoly.PALL_MALL_IND)),
+        new Card("Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total of 10 times the amount thrown", 
+            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+        ),
+        new Card("Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay owner twice the rental which they are otherwise entitled.",
+            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+        ),
+        new Card("Bank pays you dividend of $50.", (game) => game.addCash(game.getPlayer(), 50)),
+        new Card("Get Out of Jail Free.", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
+        new Card("Go Back 3 spaces.", (game) => game.goTo(game.getPlayer(), game.getPlayer().pos-3)),
+        new Card("Go to Jail. Do not pass GO, do not collect $200.", (game) => game.goToJail(game.getPlayer())),
+        new Card("Make general repairs on all your property: For each house pay $25, For each hotel pay $100.",
+            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+        ),
+        new Card("Pay speeding fine of $15.", (game) => game.addCash(game.getPlayer(), -15)),
+        new Card("Take a ride to King’s Cross Station. If you pass Go, collect $200.", (game) => game.goTo(game.getPlayer(), Monopoly.KINGS_CROSS_IND)),
+        new Card("Take a walk on the board walk. Advance token to Mayfair", (game) => game.goTo(game.getPlayer(), Monopoly.MAYFAIR_IND)),
+        new Card("You have been elected Chairman of the Board. Pay each player $50", 
+            (game) => game.collectFromOthers(game.getPlayer(), -50)
+        ),
+        new Card("Your building loan matures. Receive $150.", (game) => game.addCash(game.getPlayer(), 150)),
+        new Card("Your have won a crossword competition. Collect $100.", (game) => game.addCash(game.getPlayer(), 100))
+    ]
 
     constructor(playerDatas) {
         this.initPlayers(playerDatas)
         this.communityChestCards = shuffle(Monopoly.COMMUNITY_CHEST_CARDS.map(x => x))
+        this.chanceCards = shuffle(Monopoly.CHANCE_CARDS.map(x => x))
         this.playerInd = 0
         this.nthDouble = 0
         this.log_turns = false
@@ -112,43 +146,46 @@ class Monopoly {
         }
     }
 
-    turn(die1=null, die2=null) {
+    turn(die1=null, die2=null, passGo=true, callArrive=true) {
         const player = this.players[this.playerInd]
         die1 = Number.isInteger(die1) ? die1 : this.rollDie()
         die2 = Number.isInteger(die2) ? die2 : this.rollDie()
+        let toNextPlayer = false
         this.log(`${this.getPlayerName(player)} rolled ${die1}, ${die2}`)
 
         if (player.jailTime > 0) {
             if (die1 == die2) {
                 this.log(`Rolled Double, leaving Jail`)
                 player.jailTime = 0
-                this.move(player, die1 + die2)
+                this.move(player, die1 + die2, passGo, callArrive)
             } else {
                 player.jailTime -= 1
                 this.log(`Didn't roll double, ${player.jailTime} Turns until release`)
             }
+            toNextPlayer = true
+        } else if (die1 == die2 && this.nthDouble >= Monopoly.MAX_DBLS) {
+            this.log(`Rolled ${Monopoly.MAX_DBLS+1} Doubles, going to jail`)
+            this.goToJail(player)
+            toNextPlayer = true
+        } else if (die1 == die2) {
+            this.log(`Rolled Double ${this.nthDouble+1}, continuing turn`)
+            this.move(player, die1 + die2, passGo, callArrive)
+            this.nthDouble += 1
         } else {
-            if (die1 == die2 && this.nthDouble >= Monopoly.MAX_DBLS) {
-                this.log(`Rolled ${Monopoly.MAX_DBLS+1} Doubles, going to jail`)
-                this.goToJail(player)
-            } else {
-                if (die1 == die2) {
-                    this.log(`Rolled Double ${this.nthDouble}, continuing turn`)
-                    this.nthDouble += 1
-                }
-                this.move(player, die1 + die2)
-            }
+            this.move(player, die1 + die2, passGo, callArrive)
+            toNextPlayer = true
         }
+
         this.log(`End ${this.getPlayerName(player)} turn`)
-        this.nextPlayer()
+        if (toNextPlayer) this.nextPlayer()
     }
 
     log(msg) {
         if (this.log_turns) console.log(msg)
     }
 
-    move(player, distance) {
-        this.goTo(player, (player.pos + distance) % Monopoly.TILES.length)
+    move(player, distance, passGo=true, callArrive=true) {
+        this.goTo(player, (player.pos + distance) % Monopoly.TILES.length, passGo, callArrive)
     }
 
     goToJail(player) {
@@ -156,13 +193,33 @@ class Monopoly {
         player.jailTime = Monopoly.JAIL_TIME
     }
 
-    goTo(player, tileInd, passGo=true) {
+    goToClosestUtility(player) {
+        if (player.pos>=Monopoly.UTILITY_INDS[0] && player.pos<Monopoly.UTILITY_INDS[1]) {
+            this.goTo(player, Monopoly.UTILITY_INDS[1])
+        } else {
+            this.goTo(player, Monopoly.UTILITY_INDS[0])
+        }
+    }
+
+    goToClosestRailroad(player) {
+        if (player.pos>=Monopoly.RAIL_INDS[2] && player.pos<Monopoly.RAIL_INDS[3]) {
+            this.goTo(player, Monopoly.RAIL_INDS[3])
+        } else if (player.pos>=Monopoly.RAIL_INDS[1] && player.pos<Monopoly.RAIL_INDS[2]) {
+            this.goTo(player, Monopoly.RAIL_INDS[2])
+        } else if (player.pos>=Monopoly.RAIL_INDS[0] && player.pos<Monopoly.RAIL_INDS[1]) {
+            this.goTo(player, Monopoly.RAIL_INDS[1])
+        } else {
+            this.goTo(player, Monopoly.RAIL_INDS[0])
+        }
+    }
+
+    goTo(player, tileInd, passGo=true, callArrive=true) {
         if (passGo && tileInd!=Monopoly.GO_IND && this.passesGo(player.pos, tileInd)) {
             Monopoly.TILES[Monopoly.GO_IND].arrive(this)
         }
         player.pos = tileInd
         this.log(`Arrived at ${Monopoly.TILES[player.pos].name}`)
-        Monopoly.TILES[player.pos].arrive(this)
+        if (callArrive) Monopoly.TILES[player.pos].arrive(this)
     }
 
     passesGo(fromInd, toInd) {
@@ -191,8 +248,17 @@ class Monopoly {
     drawCommunityChestCard() {
         const card = this.communityChestCards.shift()
         this.communityChestCards.push(card)
+        this.log("Community Chest card drawn.")
         return card
     }
+
+    drawChanceCard() {
+        const card = this.chanceCards.shift()
+        this.chanceCards.push(card)
+        this.log("Chance card drawn.")
+        return card
+    }
+
 
     addCash(player, amount) {
         player.cash += amount
@@ -201,16 +267,16 @@ class Monopoly {
 
     addGetOutOfJailFree(player, amount) {
         player.nGetOutOfJailFree += amount
-        this.log(`$${amount} \"Get Out Of Jail Free\" dard ${amount>0 ? 'given to': 'taken from'} ${this.getPlayerName(player)}`)
+        this.log(`${amount} \"Get Out Of Jail Free\" card ${amount>0 ? 'given to': 'taken from'} ${this.getPlayerName(player)}`)
     }
 
     collectFromOthers(player, amount) {
-        const pInd = game.players.indexOf(player)
-        const players = game.getPlayers()
+        const pInd = this.players.indexOf(player)
+        const players = this.getPlayers()
         for (let i=0; i<players.length; i++) {
             if (i!=pInd) {
-                game.addCash(players[i], -amount)
-                game.addCash(player, amount)
+                this.addCash(players[i], -amount)
+                this.addCash(player, amount)
             }
         }
     }

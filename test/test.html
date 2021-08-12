@@ -2,11 +2,14 @@
 <script src="tinytest.js"></script>
 <script src="../src/game/player-data.js"></script>
 <script src="../src/game/tile.js"></script>
+<script src="../src/game/card.js"></script>
 <script src="../src/game/monopoly.js"></script>
 <script src="./monopoly-tests.js"></script>
 <script>
-  let testObj = {}
-  Object.assign(testObj, MonopolyTests)
-  // Run
-  tests(testObj)
+function setup() {
+    let testObj = {}
+    Object.assign(testObj, MonopolyTests)
+    // Run
+    tests(testObj)
+}
 </script>
