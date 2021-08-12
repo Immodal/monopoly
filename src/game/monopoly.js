@@ -1,5 +1,3 @@
-
-
 class Monopoly {
     static MAX_PLAYERS = 8
     static STARTING_BALANCE = 1500
@@ -72,14 +70,30 @@ class Monopoly {
         new Card("Doctor's fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
         new Card("From sale of stock you get $50.", (game) => game.addCash(game.getPlayer(), 50)),
         new Card("Get Out of Jail Free", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
-        new Card("Grand Opera Night. Collect $50 from every player for opening night seats.", (game) => game.collectFromOthers(game.getPlayer(), 50)),
+        new Card("Grand Opera Night. Collect $50 from every player for opening night seats.", 
+            (game) => game.collectFromOthers(game.getPlayer(), 50)
+        ),
         new Card("Holiday Fund matures. Received $100", (game) => game.addCash(game.getPlayer(), 100)),
         new Card("Income tax refund. Collect $20", (game) => game.addCash(game.getPlayer(), 20)),
-        new Card("It's your birthday. Collect $10 from every player.", (game) => game.collectFromOthers(game.getPlayer(), 10))
+        new Card("It's your birthday. Collect $10 from every player.", 
+            (game) => game.collectFromOthers(game.getPlayer(), 10)
+        ),
+        new Card("Life insurance matures - Collect $100.", (game) => game.addCash(game.getPlayer(), 50)),
+        new Card("Hospital Fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
+        new Card("School Fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
+        new Card("Receive $25 consultancy fee.", (game) => game.addCash(game.getPlayer(), 25)),
+        new Card("You are assessed for street repairs: Pay $40 per house and $115 per hotel you own.", 
+            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+        ),
+        new Card("You have won second prize in a beauty contest. Collect $10.", 
+            (game) => game.addCash(game.getPlayer(), 10)
+        ),
+        new Card("You inherit $100.", (game) => game.addCash(game.getPlayer(), 100))
     ]
 
     constructor(playerDatas) {
         this.initPlayers(playerDatas)
+        this.communityChestCards = shuffle(Monopoly.COMMUNITY_CHEST_CARDS.map(x => x))
         this.playerInd = 0
         this.nthDouble = 0
         this.log_turns = false
@@ -102,7 +116,7 @@ class Monopoly {
         const player = this.players[this.playerInd]
         die1 = Number.isInteger(die1) ? die1 : this.rollDie()
         die2 = Number.isInteger(die2) ? die2 : this.rollDie()
-        this.log(`Player ${this.playerInd} rolled ${die1}, ${die2}`)
+        this.log(`${this.getPlayerName(player)} rolled ${die1}, ${die2}`)
 
         if (player.jailTime > 0) {
             if (die1 == die2) {
@@ -125,7 +139,7 @@ class Monopoly {
                 this.move(player, die1 + die2)
             }
         }
-        this.log(`End Player ${this.playerInd} turn`)
+        this.log(`End ${this.getPlayerName(player)} turn`)
         this.nextPlayer()
     }
 
@@ -166,18 +180,28 @@ class Monopoly {
         this.nthDouble = 0
     }
 
+    getPlayerName(player) {
+        return player.data.name
+    }
+
     getPlayers() {
         return this.players
     }
 
+    drawCommunityChestCard() {
+        const card = this.communityChestCards.shift()
+        this.communityChestCards.push(card)
+        return card
+    }
+
     addCash(player, amount) {
         player.cash += amount
-        this.log(`$${amount} ${amount>0 ? 'given to': 'taken from'} ${player.name}`)
+        this.log(`$${amount} ${amount>0 ? 'given to': 'taken from'} ${this.getPlayerName(player)}`)
     }
 
     addGetOutOfJailFree(player, amount) {
         player.nGetOutOfJailFree += amount
-        this.log(`$${amount} \"Get Out Of Jail Free\" dard ${amount>0 ? 'given to': 'taken from'} ${player.name}`)
+        this.log(`$${amount} \"Get Out Of Jail Free\" dard ${amount>0 ? 'given to': 'taken from'} ${this.getPlayerName(player)}`)
     }
 
     collectFromOthers(player, amount) {

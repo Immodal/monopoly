@@ -10,10 +10,10 @@ function setup() {
 
     board = new Board(0,0, CANVAS_SIZE)
     game = new Monopoly([
-        new PlayerData('a'),
-        new PlayerData('b'),
-        //new PlayerData('c'),
-        //new PlayerData('d'),
+        new PlayerData('Nigel'),
+        new PlayerData('Eve'),
+        new PlayerData('Robby'),
+        new PlayerData('Georgia'),
         //new PlayerData('e'),
         //new PlayerData('f'),
         //new PlayerData('g'),

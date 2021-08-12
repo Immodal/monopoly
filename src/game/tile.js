@@ -14,8 +14,8 @@ class GoTile extends Tile {
     }
 
     arrive(game) {
-        game.addCash(game.getPlayer(), this.amount)
         game.log(`Passed Go, collecting ${this.amount}`)
+        game.addCash(game.getPlayer(), this.amount)
     }
 }
 
@@ -35,7 +35,7 @@ class CommunityChestTile extends Tile {
     }
 
     arrive(game) {
-
+        game.drawCommunityChestCard().activate(game)
     }
 }
 
