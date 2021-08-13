@@ -1,6 +1,6 @@
 const MonopolyTests = {
     "rollDie": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
 
         const dieMin = 1
         const dieMax = 6
@@ -19,7 +19,7 @@ const MonopolyTests = {
     },
 
     "addGetOutOfJailFree": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
 
         eq(game.getPlayer().nGetOutOfJailFree, 0)
         game.addGetOutOfJailFree(game.getPlayer(), 1)
@@ -27,7 +27,7 @@ const MonopolyTests = {
     },
 
     "collectFromOthers": function() {
-        const game = new Monopoly([new PlayerData("a"), new PlayerData("b"), new PlayerData("c")])
+        const game = new Monopoly([new Player("a"), new Player("b"), new Player("c")])
         const p0 = game.getPlayer(0)
         const p1 = game.getPlayer(1)
         const p2 = game.getPlayer(2)
@@ -50,7 +50,7 @@ const MonopolyTests = {
     },
 
     "drawCommunityChestCard": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
         game.communityChestCards = [
             new Card('1', (game) => game.testAttr = 1),
             new Card('2', (game) => game.testAttr = 2)
@@ -66,7 +66,7 @@ const MonopolyTests = {
     },
 
     "drawChanceCard": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
         game.chanceCards = [
             new Card('1', (game) => game.testAttr = 1),
             new Card('2', (game) => game.testAttr = 2)
@@ -82,7 +82,7 @@ const MonopolyTests = {
     },
 
     "move": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
         const player1 = game.players[0]
         
         for (let i=0; i<3; i++) {
@@ -104,7 +104,7 @@ const MonopolyTests = {
         // Going past on Start
         player1.pos = 35
         player1.cash = Monopoly.STARTING_BALANCE
-        game.move(player1, 11)
+        game.move(player1, 11, true, false)
         eq(player1.pos, 6)
         eq(player1.cash, Monopoly.STARTING_BALANCE + Monopoly.TILES[Monopoly.GO_IND].amount)
         
@@ -117,7 +117,7 @@ const MonopolyTests = {
     },
 
     "goToJail": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
         const player1 = game.players[0]
 
         // Should send to jail while not collecting income
@@ -128,41 +128,41 @@ const MonopolyTests = {
     },
 
     "goToClosestUtility": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
         const player1 = game.players[0]
 
         // Should send to jail while not collecting income
         eq(player1.pos, 0)
-        game.goToClosestUtility(player1)
+        game.goToClosestUtility(player1, true, false)
         eq(player1.pos, Monopoly.UTILITY_INDS[0])
-        game.goToClosestUtility(player1)
+        game.goToClosestUtility(player1, true, false)
         eq(player1.pos, Monopoly.UTILITY_INDS[1])
-        game.goToClosestUtility(player1)
+        game.goToClosestUtility(player1, true, false)
         eq(player1.pos, Monopoly.UTILITY_INDS[0])
         eq(player1.cash, Monopoly.STARTING_BALANCE + Monopoly.TILES[Monopoly.GO_IND].amount)
     },
 
     "goToClosestRailroad": function() {
-        const game = new Monopoly([new PlayerData("a")])
+        const game = new Monopoly([new Player("a")])
         const player1 = game.players[0]
 
         // Should send to jail while not collecting income
         eq(player1.pos, 0)
-        game.goToClosestRailroad(player1)
+        game.goToClosestRailroad(player1, true, false)
         eq(player1.pos, Monopoly.RAIL_INDS[0])
-        game.goToClosestRailroad(player1)
+        game.goToClosestRailroad(player1, true, false)
         eq(player1.pos, Monopoly.RAIL_INDS[1])
-        game.goToClosestRailroad(player1)
+        game.goToClosestRailroad(player1, true, false)
         eq(player1.pos, Monopoly.RAIL_INDS[2])
-        game.goToClosestRailroad(player1)
+        game.goToClosestRailroad(player1, true, false)
         eq(player1.pos, Monopoly.RAIL_INDS[3])
-        game.goToClosestRailroad(player1)
+        game.goToClosestRailroad(player1, true, false)
         eq(player1.pos, Monopoly.RAIL_INDS[0])
         eq(player1.cash, Monopoly.STARTING_BALANCE + Monopoly.TILES[Monopoly.GO_IND].amount)
     },
 
     "nextPlayer": function() {
-        const game = new Monopoly([new PlayerData("a"), new PlayerData("b")])
+        const game = new Monopoly([new Player("a"), new Player("b")])
         
         game.nthDouble = 2
         eq(game.playerInd, 0)
@@ -177,7 +177,7 @@ const MonopolyTests = {
 
     "turn": function() {
         // Never roll doubles, will always change player
-        let game = new Monopoly([new PlayerData("a"), new PlayerData("b")])
+        let game = new Monopoly([new Player("a"), new Player("b")])
         eq(game.playerInd, 0)
         eq(game.nthDouble, 0)
         eq(game.players[game.playerInd].jailTime, 0)
@@ -191,7 +191,7 @@ const MonopolyTests = {
         }
 
         // Player plays extra turn if roll double while less than max
-        game = new Monopoly([new PlayerData("a"), new PlayerData("b")])
+        game = new Monopoly([new Player("a"), new Player("b")])
         let dice = game.rollDie()
         eq(game.playerInd, 0)
         eq(game.nthDouble, 0)
@@ -203,13 +203,13 @@ const MonopolyTests = {
             eq(game.nthDouble, i+1)
             eq(game.players[game.playerInd].jailTime, 0)
         }
-        game.turn(5, 4)
+        game.turn(5, 4, true, false)
         eq(game.players[game.playerInd-1].jailTime, 0)
         eq(game.playerInd, 1)
         eq(game.nthDouble, 0)
 
         // Player gets sent to jail if roll more doubles than max
-        game = new Monopoly([new PlayerData("a"), new PlayerData("b")])
+        game = new Monopoly([new Player("a"), new Player("b")])
         eq(game.playerInd, 0)
         eq(game.nthDouble, 0)
         eq(game.players[game.playerInd].jailTime, 0)

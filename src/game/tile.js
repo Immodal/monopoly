@@ -26,6 +26,20 @@ class PropertyTile extends Tile {
         this.price = price
         this.group = group
     }
+
+    arrive(game) {
+        const prop = game.properties[this.name]
+        const player = game.getPlayer()
+        if (player==prop.owner) {
+            this.log("***_____ PROPERTY IMPROVEMENT NOT IMPLEMENTED _____***")
+        } else if(prop.owner && player!=prop.owner) {
+            this.log("***_____ RENT PAYING NOT IMPLEMENTED _____***")
+        } else {
+            if (player.buyProperty(this)) {
+                game.buyProperty(player, this)
+            }
+        }
+    }
 }
 
 

@@ -24,7 +24,6 @@ class Monopoly {
     static MAYFAIR_IND = 39
     static UTILITY_INDS = [12, 28]
     static RAIL_INDS = [Monopoly.KINGS_CROSS_IND, 15, 25, 35]
-
     static TILES = [
         // 0
         new GoTile("Go", 200),
@@ -124,8 +123,9 @@ class Monopoly {
         new Card("Your have won a crossword competition. Collect $100.", (game) => game.addCash(game.getPlayer(), 100))
     ]
 
-    constructor(playerDatas) {
-        this.initPlayers(playerDatas)
+    constructor(players) {
+        this.initProperties()
+        this.players = players
         this.communityChestCards = shuffle(Monopoly.COMMUNITY_CHEST_CARDS.map(x => x))
         this.chanceCards = shuffle(Monopoly.CHANCE_CARDS.map(x => x))
         this.playerInd = 0
@@ -133,16 +133,17 @@ class Monopoly {
         this.log_turns = false
     }
 
-    initPlayers(pds) {
-        this.players = []
-        for (const pd of pds) {
-            this.players.push({
-                "data": pd,
-                "pos": 0,
-                "jailTime": 0,
-                "cash": Monopoly.STARTING_BALANCE,
-                "nGetOutOfJailFree": 0
-            })
+    initProperties() {
+        this.properties = {}
+        for (const t of Monopoly.TILES) {
+            if (t instanceof PropertyTile) {
+                this.properties[t.name] = {
+                    owner: null,
+                    nHouses: 0,
+                    nHotels: 0,
+                    tile: t
+                }
+            }
         }
     }
 
@@ -188,28 +189,28 @@ class Monopoly {
         this.goTo(player, (player.pos + distance) % Monopoly.TILES.length, passGo, callArrive)
     }
 
-    goToJail(player) {
-        this.goTo(player, Monopoly.JAIL_IND, false)
+    goToJail(player, passGo=false, callArrive=true) {
+        this.goTo(player, Monopoly.JAIL_IND, passGo, callArrive)
         player.jailTime = Monopoly.JAIL_TIME
     }
 
-    goToClosestUtility(player) {
+    goToClosestUtility(player, passGo=true, callArrive=true) {
         if (player.pos>=Monopoly.UTILITY_INDS[0] && player.pos<Monopoly.UTILITY_INDS[1]) {
-            this.goTo(player, Monopoly.UTILITY_INDS[1])
+            this.goTo(player, Monopoly.UTILITY_INDS[1], passGo, callArrive)
         } else {
-            this.goTo(player, Monopoly.UTILITY_INDS[0])
+            this.goTo(player, Monopoly.UTILITY_INDS[0], passGo, callArrive)
         }
     }
 
-    goToClosestRailroad(player) {
+    goToClosestRailroad(player, passGo=true, callArrive=true) {
         if (player.pos>=Monopoly.RAIL_INDS[2] && player.pos<Monopoly.RAIL_INDS[3]) {
-            this.goTo(player, Monopoly.RAIL_INDS[3])
+            this.goTo(player, Monopoly.RAIL_INDS[3], passGo, callArrive)
         } else if (player.pos>=Monopoly.RAIL_INDS[1] && player.pos<Monopoly.RAIL_INDS[2]) {
-            this.goTo(player, Monopoly.RAIL_INDS[2])
+            this.goTo(player, Monopoly.RAIL_INDS[2], passGo, callArrive)
         } else if (player.pos>=Monopoly.RAIL_INDS[0] && player.pos<Monopoly.RAIL_INDS[1]) {
-            this.goTo(player, Monopoly.RAIL_INDS[1])
+            this.goTo(player, Monopoly.RAIL_INDS[1], passGo, callArrive)
         } else {
-            this.goTo(player, Monopoly.RAIL_INDS[0])
+            this.goTo(player, Monopoly.RAIL_INDS[0], passGo, callArrive)
         }
     }
 
@@ -238,11 +239,25 @@ class Monopoly {
     }
 
     getPlayerName(player) {
-        return player.data.name
+        return player.name
     }
 
     getPlayers() {
         return this.players
+    }
+
+    buyProperty(player, property) {
+        if (property.owner) {
+            this.log(`Failed to buy ${property.name}, already owned by ${this.getPlayerName(property.owner)}`)
+        } else if (player.cash<property.price) {
+            this.log(`Failed to buy ${property.name} (${property.price}), ${this.getPlayerName(player)} doesn't have enough cash (${player.cash})`)
+        } else {
+            property.owner = player
+            player.cash -= property.price
+            this.log(`${this.getPlayerName(property.owner)} has bought ${property.name}`)
+            return true
+        }
+        return false
     }
 
     drawCommunityChestCard() {
@@ -258,7 +273,6 @@ class Monopoly {
         this.log("Chance card drawn.")
         return card
     }
-
 
     addCash(player, amount) {
         player.cash += amount

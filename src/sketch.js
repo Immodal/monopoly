@@ -10,14 +10,14 @@ function setup() {
 
     board = new Board(0,0, CANVAS_SIZE)
     game = new Monopoly([
-        new PlayerData('Nigel'),
-        new PlayerData('Eve'),
-        new PlayerData('Robby'),
-        new PlayerData('Georgia'),
-        //new PlayerData('e'),
-        //new PlayerData('f'),
-        //new PlayerData('g'),
-        //new PlayerData('h')
+        new Player('Nigel'),
+        new Player('Eve'),
+        new Player('Robby'),
+        new Player('Georgia'),
+        //new Player('e'),
+        //new Player('f'),
+        //new Player('g'),
+        //new Player('h')
     ])
     game.log_turns = true
 }
