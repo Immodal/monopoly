@@ -72,29 +72,29 @@ class Monopoly {
     ]
     static COMMUNITY_CHEST_CARDS = [
         new Card("Advance to \"Go\"", (game) => game.goTo(game.getPlayer(), Monopoly.GO_IND)),
-        new Card("Bank error in your favor. Collect $200.", (game) => game.addCash(game.getPlayer(), 200)),
-        new Card("Doctor's fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
-        new Card("From sale of stock you get $50.", (game) => game.addCash(game.getPlayer(), 50)),
+        new Card("Bank error in your favor. Collect $200.", (game) => game.payTo(null, game.getPlayer(), 200)),
+        new Card("Doctor's fees. Pay $50.", (game) => game.payTo(game.getPlayer(), null, 50)),
+        new Card("From sale of stock you get $50.", (game) => game.payTo(null, game.getPlayer(), 50)),
         new Card("Get Out of Jail Free.", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
         new Card("Grand Opera Night. Collect $50 from every player for opening night seats.", 
             (game) => game.collectFromOthers(game.getPlayer(), 50)
         ),
-        new Card("Holiday Fund matures. Received $100", (game) => game.addCash(game.getPlayer(), 100)),
-        new Card("Income tax refund. Collect $20", (game) => game.addCash(game.getPlayer(), 20)),
+        new Card("Holiday Fund matures. Received $100", (game) => game.payTo(null, game.getPlayer(), 100)),
+        new Card("Income tax refund. Collect $20", (game) => game.payTo(null, game.getPlayer(), 20)),
         new Card("It's your birthday. Collect $10 from every player.", 
             (game) => game.collectFromOthers(game.getPlayer(), 10)
         ),
-        new Card("Life insurance matures - Collect $100.", (game) => game.addCash(game.getPlayer(), 100)),
-        new Card("Hospital Fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
-        new Card("School Fees. Pay $50.", (game) => game.addCash(game.getPlayer(), -50)),
-        new Card("Receive $25 consultancy fee.", (game) => game.addCash(game.getPlayer(), 25)),
+        new Card("Life insurance matures - Collect $100.", (game) => game.payTo(null, game.getPlayer(), 100)),
+        new Card("Hospital Fees. Pay $50.", (game) => game.payTo(game.getPlayer(), null, 50)),
+        new Card("School Fees. Pay $50.", (game) => game.payTo(game.getPlayer(), null, 50)),
+        new Card("Receive $25 consultancy fee.", (game) => game.payTo(null, game.getPlayer(), 25)),
         new Card("You are assessed for street repairs: Pay $40 per house and $115 per hotel you own.", 
             (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
         ),
         new Card("You have won second prize in a beauty contest. Collect $10.", 
-            (game) => game.addCash(game.getPlayer(), 10)
+            (game) => game.payTo(null, game.getPlayer(), 10)
         ),
-        new Card("You inherit $100.", (game) => game.addCash(game.getPlayer(), 100))
+        new Card("You inherit $100.", (game) => game.payTo(null, game.getPlayer(), 100))
     ]
     static CHANCE_CARDS = [
         new Card("Advance to \"Go\"", (game) => game.goTo(game.getPlayer(), Monopoly.GO_IND)),
@@ -106,21 +106,21 @@ class Monopoly {
         new Card("Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay owner twice the rental which they are otherwise entitled.",
             (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
         ),
-        new Card("Bank pays you dividend of $50.", (game) => game.addCash(game.getPlayer(), 50)),
+        new Card("Bank pays you dividend of $50.", (game) => payTo(null, game.getPlayer(), 50)),
         new Card("Get Out of Jail Free.", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
         new Card("Go Back 3 spaces.", (game) => game.goTo(game.getPlayer(), game.getPlayer().pos-3)),
         new Card("Go to Jail. Do not pass GO, do not collect $200.", (game) => game.goToJail(game.getPlayer())),
         new Card("Make general repairs on all your property: For each house pay $25, For each hotel pay $100.",
             (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
         ),
-        new Card("Pay speeding fine of $15.", (game) => game.addCash(game.getPlayer(), -15)),
+        new Card("Pay speeding fine of $15.", (game) => game.payTo(game.getPlayer(), null, 15)),
         new Card("Take a ride to King’s Cross Station. If you pass Go, collect $200.", (game) => game.goTo(game.getPlayer(), Monopoly.KINGS_CROSS_IND)),
         new Card("Take a walk on the board walk. Advance token to Mayfair", (game) => game.goTo(game.getPlayer(), Monopoly.MAYFAIR_IND)),
         new Card("You have been elected Chairman of the Board. Pay each player $50", 
-            (game) => game.collectFromOthers(game.getPlayer(), -50)
+            (game) => game.payToOthers(game.getPlayer(), 50)
         ),
-        new Card("Your building loan matures. Receive $150.", (game) => game.addCash(game.getPlayer(), 150)),
-        new Card("Your have won a crossword competition. Collect $100.", (game) => game.addCash(game.getPlayer(), 100))
+        new Card("Your building loan matures. Receive $150.", (game) => game.payTo(null, game.getPlayer(), 150)),
+        new Card("Your have won a crossword competition. Collect $100.", (game) => game.payTo(null, game.getPlayer(), 100))
     ]
 
     constructor(players) {
@@ -177,7 +177,7 @@ class Monopoly {
         }
 
         this.log(`End ${player.name} turn`)
-        if (toNextPlayer) this.nextPlayer()
+        if (toNextPlayer || player.isBankrupt) this.nextPlayer()
     }
 
     log(msg) {
@@ -288,46 +288,47 @@ class Monopoly {
         return card
     }
 
-    addCash(player, amount) {
-        if (player.isBankrupt) {
-            this.log(`${player.name} is no longer in the game!`)
-        } else if (amount < 0 && player.cash < -amount) {
-            this.bankrupt(player)
+    payTo(payer, recipient, amount) {
+        if (payer==recipient) return
+        else if (!payer) {
+            recipient.cash += amount
+            this.log(`$${amount} given to ${recipient.name}`)
+        } else if (payer.isBankrupt) {
+            this.log(`***_____ ${payer.name} IS NO LONGER IN THE GAME! _____***`)
+        } else if (payer.cash < amount) {
+            this.bankrupt(payer, recipient)
         } else {
-            player.cash += amount
-            this.log(`$${amount} ${amount>0 ? 'given to': 'taken from'} ${player.name}`)
+            payer.cash -= amount
+            this.log(`$${amount} taken from ${payer.name}`)
+            recipient.cash += amount
+            this.log(`$${amount} given to ${recipient.name}`)
         }
     }
 
-    payTo(p1, p2, amount) {
-        if (p1.isBankrupt) {
-            this.log(`${p1.name} is no longer in the game!`)
-        } else if (p1.cash < amount) {
-            this.bankrupt(p1)
-        } else {
-            this.addCash(p1, -amount)
-            this.addCash(p2, amount)
+    bankrupt(player, recipient=null) {
+        player.isBankrupt = true
+        this.log("***_____ BANKRUPTCY NOT FULLY IMPLEMENTED _____***")
+        this.log(`${player.name} is bankrupt!`)
+    }
+
+    collectFromOthers(player, amount) {
+        const players = this.getPlayers()
+        for (let i=0; i<players.length; i++) {
+            this.payTo(players[i], player, amount)
+        }
+    }
+
+    payToOthers(player, amount) {
+        const players = this.getPlayers()
+        for (let i=0; i<players.length; i++) {
+            if (player.isBankrupt) break 
+            else this.payTo(player, players[i], amount)
         }
     }
 
     addGetOutOfJailFree(player, amount) {
         player.nGetOutOfJailFree += amount
         this.log(`${amount} \"Get Out Of Jail Free\" card ${amount>0 ? 'given to': 'taken from'} ${player.name}`)
-    }
-
-    collectFromOthers(player, amount) {
-        const pInd = this.players.indexOf(player)
-        const players = this.getPlayers()
-        for (let i=0; i<players.length; i++) {
-            if (player.isBankrupt) break 
-            else if (i!=pInd) this.payTo(players[i], player, amount)
-        }
-    }
-
-    bankrupt(player) {
-        player.isBankrupt = true
-        this.log("***_____ BANKRUPTCY NOT FULLY IMPLEMENTED _____***")
-        this.log(`${player.name} is bankrupt!`)
     }
 
     rollDie(min=1, max=6) {

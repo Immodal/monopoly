@@ -49,6 +49,29 @@ const MonopolyTests = {
         eq(p2.cash, Monopoly.STARTING_BALANCE)
     },
 
+    "payToOthers": function() {
+        const game = new Monopoly([new Player("a"), new Player("b"), new Player("c")])
+        const p0 = game.getPlayer(0)
+        const p1 = game.getPlayer(1)
+        const p2 = game.getPlayer(2)
+
+        eq(p0.cash, Monopoly.STARTING_BALANCE)
+        eq(p1.cash, Monopoly.STARTING_BALANCE)
+        eq(p2.cash, Monopoly.STARTING_BALANCE)
+        game.payToOthers(p0, 10)
+        eq(p0.cash, Monopoly.STARTING_BALANCE-20)
+        eq(p1.cash, Monopoly.STARTING_BALANCE+10)
+        eq(p2.cash, Monopoly.STARTING_BALANCE+10)
+        game.payToOthers(p1, 10)
+        eq(p0.cash, Monopoly.STARTING_BALANCE-10)
+        eq(p1.cash, Monopoly.STARTING_BALANCE-10)
+        eq(p2.cash, Monopoly.STARTING_BALANCE+20)
+        game.payToOthers(p2, 10)
+        eq(p0.cash, Monopoly.STARTING_BALANCE)
+        eq(p1.cash, Monopoly.STARTING_BALANCE)
+        eq(p2.cash, Monopoly.STARTING_BALANCE)
+    },
+
     "drawCommunityChestCard": function() {
         const game = new Monopoly([new Player("a")])
         game.communityChestCards = [

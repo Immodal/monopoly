@@ -19,7 +19,7 @@ class GoTile extends Tile {
 
     arrive(game) {
         game.log(`Passed Go, collecting ${this.amount}`)
-        game.addCash(game.getPlayer(), this.amount)
+        game.payTo(null, game.getPlayer(), this.amount)
     }
 
     clone() {
@@ -88,7 +88,7 @@ class TaxTile extends Tile {
     }
 
     arrive() {
-        game.addCash(game.getPlayer(), -this.amount)
+        game.payTo(game.getPlayer(), null, this.amount)
     }
 
     clone() {
