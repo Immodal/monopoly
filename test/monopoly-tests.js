@@ -26,6 +26,22 @@ const MonopolyTests = {
         eq(game.getPlayer().nGetOutOfJailFree, 1)
     },
 
+    'payTo': function() {
+        const game = new Monopoly([new Player("a"), new Player("b"), new Player("c")])
+        const p0 = game.getPlayer(0)
+        const p1 = game.getPlayer(1)
+
+        game.payTo(null, p0, 100)
+        eq(p0.cash, Monopoly.STARTING_BALANCE + 100)
+        eq(p1.cash, Monopoly.STARTING_BALANCE)
+        game.payTo(p0, p1, 100)
+        eq(p0.cash, Monopoly.STARTING_BALANCE)
+        eq(p1.cash, Monopoly.STARTING_BALANCE + 100)
+        game.payTo(p1, null, 100)
+        eq(p0.cash, Monopoly.STARTING_BALANCE)
+        eq(p1.cash, Monopoly.STARTING_BALANCE)
+    },
+
     "collectFromOthers": function() {
         const game = new Monopoly([new Player("a"), new Player("b"), new Player("c")])
         const p0 = game.getPlayer(0)

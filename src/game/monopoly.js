@@ -300,8 +300,10 @@ class Monopoly {
         } else {
             payer.cash -= amount
             this.log(`$${amount} taken from ${payer.name}`)
-            recipient.cash += amount
-            this.log(`$${amount} given to ${recipient.name}`)
+            if (recipient) {
+                recipient.cash += amount
+                this.log(`$${amount} given to ${recipient.name}`)
+            }
         }
     }
 
