@@ -124,35 +124,34 @@ class Monopoly {
     ]
 
     constructor(players) {
-        this.initProperties()
+        this.initTilesAndProperties()
         this.players = players
         this.communityChestCards = shuffle(Monopoly.COMMUNITY_CHEST_CARDS.map(x => x))
         this.chanceCards = shuffle(Monopoly.CHANCE_CARDS.map(x => x))
         this.playerInd = 0
         this.nthDouble = 0
         this.log_turns = false
+        this.ended = false
     }
 
-    initProperties() {
+    initTilesAndProperties() {
+        this.tiles = Monopoly.TILES.map(x => x.clone())
         this.properties = {}
-        for (const t of Monopoly.TILES) {
+        for (const t of this.tiles) {
             if (t instanceof PropertyTile) {
-                this.properties[t.name] = {
-                    owner: null,
-                    nHouses: 0,
-                    nHotels: 0,
-                    tile: t
-                }
+                this.properties[t.name] = t
             }
         }
     }
 
     turn(die1=null, die2=null, passGo=true, callArrive=true) {
+        if (this.ended) return 
+
         const player = this.players[this.playerInd]
         die1 = Number.isInteger(die1) ? die1 : this.rollDie()
         die2 = Number.isInteger(die2) ? die2 : this.rollDie()
         let toNextPlayer = false
-        this.log(`${this.getPlayerName(player)} rolled ${die1}, ${die2}`)
+        this.log(`${player.name} rolled ${die1}, ${die2}`)
 
         if (player.jailTime > 0) {
             if (die1 == die2) {
@@ -177,7 +176,7 @@ class Monopoly {
             toNextPlayer = true
         }
 
-        this.log(`End ${this.getPlayerName(player)} turn`)
+        this.log(`End ${player.name} turn`)
         if (toNextPlayer) this.nextPlayer()
     }
 
@@ -186,7 +185,7 @@ class Monopoly {
     }
 
     move(player, distance, passGo=true, callArrive=true) {
-        this.goTo(player, (player.pos + distance) % Monopoly.TILES.length, passGo, callArrive)
+        this.goTo(player, (player.pos + distance) % this.tiles.length, passGo, callArrive)
     }
 
     goToJail(player, passGo=false, callArrive=true) {
@@ -216,11 +215,11 @@ class Monopoly {
 
     goTo(player, tileInd, passGo=true, callArrive=true) {
         if (passGo && tileInd!=Monopoly.GO_IND && this.passesGo(player.pos, tileInd)) {
-            Monopoly.TILES[Monopoly.GO_IND].arrive(this)
+            this.tiles[Monopoly.GO_IND].arrive(this)
         }
         player.pos = tileInd
-        this.log(`Arrived at ${Monopoly.TILES[player.pos].name}`)
-        if (callArrive) Monopoly.TILES[player.pos].arrive(this)
+        this.log(`Arrived at ${this.tiles[player.pos].name}`)
+        if (callArrive) this.tiles[player.pos].arrive(this)
     }
 
     passesGo(fromInd, toInd) {
@@ -234,12 +233,27 @@ class Monopoly {
     }
 
     nextPlayer() {
-        this.playerInd = (this.playerInd + 1) % this.players.length
-        this.nthDouble = 0
+        this.checkForWinner()
+        if (!this.ended) {
+            this.playerInd = (this.playerInd + 1) % this.players.length
+            while (this.getPlayer().isBankrupt) {
+                this.playerInd = (this.playerInd + 1) % this.players.length
+            }
+            this.nthDouble = 0
+        }
     }
 
-    getPlayerName(player) {
-        return player.name
+    checkForWinner() {
+        let rem = []
+        for (const p in this.players) {
+            if (!p.isBankrupt) rem.push(p)
+        }
+
+        if (rem.length <= 1) {
+            this.ended = true
+            if (rem.length == 1) this.log(`${rem[0]} has won the game!!`)
+            else this.log("***_____ GAME ENDED WITH NO WINNER _____***")
+        }
     }
 
     getPlayers() {
@@ -248,13 +262,13 @@ class Monopoly {
 
     buyProperty(player, property) {
         if (property.owner) {
-            this.log(`Failed to buy ${property.name}, already owned by ${this.getPlayerName(property.owner)}`)
+            this.log(`Failed to buy ${property.name}, already owned by ${property.owner.name}`)
         } else if (player.cash<property.price) {
-            this.log(`Failed to buy ${property.name} (${property.price}), ${this.getPlayerName(player)} doesn't have enough cash (${player.cash})`)
+            this.log(`Failed to buy ${property.name} (${property.price}), ${player.name} doesn't have enough cash (${player.cash})`)
         } else {
             property.owner = player
             player.cash -= property.price
-            this.log(`${this.getPlayerName(property.owner)} has bought ${property.name}`)
+            this.log(`${property.owner.name} has bought ${property.name}`)
             return true
         }
         return false
@@ -275,24 +289,45 @@ class Monopoly {
     }
 
     addCash(player, amount) {
-        player.cash += amount
-        this.log(`$${amount} ${amount>0 ? 'given to': 'taken from'} ${this.getPlayerName(player)}`)
+        if (player.isBankrupt) {
+            this.log(`${player.name} is no longer in the game!`)
+        } else if (amount < 0 && player.cash < -amount) {
+            this.bankrupt(player)
+        } else {
+            player.cash += amount
+            this.log(`$${amount} ${amount>0 ? 'given to': 'taken from'} ${player.name}`)
+        }
+    }
+
+    payTo(p1, p2, amount) {
+        if (p1.isBankrupt) {
+            this.log(`${p1.name} is no longer in the game!`)
+        } else if (p1.cash < amount) {
+            this.bankrupt(p1)
+        } else {
+            this.addCash(p1, -amount)
+            this.addCash(p2, amount)
+        }
     }
 
     addGetOutOfJailFree(player, amount) {
         player.nGetOutOfJailFree += amount
-        this.log(`${amount} \"Get Out Of Jail Free\" card ${amount>0 ? 'given to': 'taken from'} ${this.getPlayerName(player)}`)
+        this.log(`${amount} \"Get Out Of Jail Free\" card ${amount>0 ? 'given to': 'taken from'} ${player.name}`)
     }
 
     collectFromOthers(player, amount) {
         const pInd = this.players.indexOf(player)
         const players = this.getPlayers()
         for (let i=0; i<players.length; i++) {
-            if (i!=pInd) {
-                this.addCash(players[i], -amount)
-                this.addCash(player, amount)
-            }
+            if (player.isBankrupt) break 
+            else if (i!=pInd) this.payTo(players[i], player, amount)
         }
+    }
+
+    bankrupt(player) {
+        player.isBankrupt = true
+        this.log("***_____ BANKRUPTCY NOT FULLY IMPLEMENTED _____***")
+        this.log(`${player.name} is bankrupt!`)
     }
 
     rollDie(min=1, max=6) {

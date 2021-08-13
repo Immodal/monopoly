@@ -27,4 +27,3 @@ function draw() {
     game.turn()
     board.draw(game)
 }
-

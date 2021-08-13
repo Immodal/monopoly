@@ -99,12 +99,15 @@ class Board {
         for (let i=0; i<game.players.length; i++) {
             const player = game.getPlayers()[i]
             const tile = this.tiles[player.pos]
-            fill(Board.PLAYER_COLORS[i])
-            circle(
-                (tile.x + tile.w/2) + Board.PLAYER_OFFSET[i].x*this.playerSize, 
-                (tile.y + tile.h/2) + Board.PLAYER_OFFSET[i].y*this.playerSize, 
-                this.playerSize
-            )
+
+            if (!player.isBackrupt) {
+                fill(Board.PLAYER_COLORS[i])
+                circle(
+                    (tile.x + tile.w/2) + Board.PLAYER_OFFSET[i].x*this.playerSize, 
+                    (tile.y + tile.h/2) + Board.PLAYER_OFFSET[i].y*this.playerSize, 
+                    this.playerSize
+                )
+            }
         }
     }
 }

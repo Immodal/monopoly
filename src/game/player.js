@@ -5,9 +5,10 @@ class Player {
         this.jailTime = 0
         this.cash = Monopoly.STARTING_BALANCE
         this.nGetOutOfJailFree = 0
+        this.isBankrupt = false
     }
 
-    buyProperty() {
-        return false
+    buyProperty(property) {
+        return true
     }
 }

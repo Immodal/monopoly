@@ -4,6 +4,10 @@ class Tile {
     }
 
     arrive() {}
+
+    clone() {
+        return new this.constructor(this.name)
+    }
 }
 
 
@@ -17,28 +21,51 @@ class GoTile extends Tile {
         game.log(`Passed Go, collecting ${this.amount}`)
         game.addCash(game.getPlayer(), this.amount)
     }
+
+    clone() {
+        return new this.constructor(this.name, this.amount)
+    }
 }
 
 
 class PropertyTile extends Tile {
-    constructor(name, price, group) {
+    constructor(name, price, group, rents) {
         super(name)
         this.price = price
         this.group = group
+        this.rents = rents
+        this.owner = null
+        this.nHouses = 0
+        this.nHotels = 0
     }
 
     arrive(game) {
-        const prop = game.properties[this.name]
         const player = game.getPlayer()
-        if (player==prop.owner) {
-            this.log("***_____ PROPERTY IMPROVEMENT NOT IMPLEMENTED _____***")
-        } else if(prop.owner && player!=prop.owner) {
-            this.log("***_____ RENT PAYING NOT IMPLEMENTED _____***")
+        if (player==this.owner) {
+            game.log("***_____ PROPERTY IMPROVEMENT NOT IMPLEMENTED _____***")
+        } else if(this.owner && player!=this.owner) {
+            game.log(`${player.name} owes ${this.owner.name} rent`)
+            game.log("***_____ RENT NOT IMPLEMENTED _____***")
+            //const rent = getRentOwed()
+            //game.payTo(player, this.owner, rent)
         } else {
             if (player.buyProperty(this)) {
                 game.buyProperty(player, this)
             }
         }
+    }
+
+    clone() {
+        const c = new this.constructor(this.name, this.price, this.group)
+        c.owner = this.owner
+        c.nHouses = this.nHouses
+        c.nHotels = this.nHotels
+        return c
+    }
+
+    getRentOwed() {
+        if (this.nHotels>0) return this.rents[this.rents.length-1]
+        return this.rents[this.nHouses]
     }
 }
 
@@ -62,6 +89,10 @@ class TaxTile extends Tile {
 
     arrive() {
         game.addCash(game.getPlayer(), -this.amount)
+    }
+
+    clone() {
+        return new this.constructor(this.name, this.amount)
     }
 }
 
