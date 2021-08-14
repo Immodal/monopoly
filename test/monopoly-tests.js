@@ -4,7 +4,7 @@ const MonopolyTests = {
 
         const dieMin = 1
         const dieMax = 6
-        const nTrials = 2000
+        const nTrials = 5000
         rollCount = new Array(dieMax).fill(0)
         for(let i=0; i<nTrials; i++) {
             rollCount[game.rollDie(dieMin, dieMax)-1] += 1
@@ -262,6 +262,27 @@ const MonopolyTests = {
         game.buyProperty(p1, prop1) 
         eq(p1.cash, 1)
         eq(prop1.owner, null)
+    },
+
+    "getGroupMembers": function() {
+        const game = new Monopoly([new Player("a"), new Player("b")])
+        eq(game.getGroupMembers(Monopoly.GROUPS.RED).length, 3)
+        eq(game.getGroupMembers(Monopoly.GROUPS.BLUE).length, 2)
+        for (const m of game.getGroupMembers(Monopoly.GROUPS.ORANGE)) {
+            eq(m instanceof PropertyTile, true)
+        }
+    },
+
+    "groupIsMonopoly": function() {
+        const game = new Monopoly([new Player("a"), new Player("b")])
+        const p0 = game.getPlayer(0)
+        const group = Monopoly.GROUPS.RED
+
+        for (const m of game.getGroupMembers(group)) {
+            eq(game.groupIsMonopoly(group), false)
+            game.buyProperty(p0, m)
+        }
+        eq(game.groupIsMonopoly(group), true)
     },
 
     "turn": function() {

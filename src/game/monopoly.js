@@ -298,8 +298,17 @@ class Monopoly {
         return false
     }
 
-    getOwnedGroupMembers(player, group) {
-        return this.tiles.filter(x => x.group == group && x.owner == player)
+    groupIsMonopoly(group) {
+        let prevOwner = null
+        for (const m of this.getGroupMembers(group)) { 
+            if (m.owner == null || (prevOwner && m.owner!=prevOwner)) return false
+            prevOwner = m.owner
+        }
+        return true
+    }
+
+    getGroupMembers(group) {
+        return this.tiles.filter(x => x.group == group)
     }
 
     drawCommunityChestCard() {

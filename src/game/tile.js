@@ -128,8 +128,13 @@ class PropertyTile extends Tile {
     }
 
     improve(game) {
+        if (!game.groupIsMonopoly(this.group)) {
+            game.log(`Unable to improve ${this.name}, group must first be a monopoly.`)
+            return
+        }
+
         let min = 0
-        for (const m of game.getOwnedGroupMembers(this.owner, this.group)) {
+        for (const m of game.getGroupMembers(this.group)) {
             if (min > m.improvementLevel) min = m.improvementLevel
         }
 

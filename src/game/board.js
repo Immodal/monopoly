@@ -1,4 +1,5 @@
 class Board {
+    static N_IMPROVEMENT_INDS = 5
     static N_MID_TILES = 9
     static N_CORNER_TILES = 2
     static TILE_HEIGHT_COEFF = 0.125
@@ -59,35 +60,68 @@ class Board {
     }
 
     _insert(x, y, w, h, side) { 
-        const tile = { x: x, y: y, w: w, h: h, side: side, tile: Monopoly.TILES[this.tiles.length] }
+        const tile = { x: x, y: y, w: w, h: h, side: side }
         this.tiles.push(tile) 
 
         // Rects in tiles that show its color group
-        if (side==BOTTOM) tile.color_box = { x:x, y:y, w:w, h:h/4 }
-        else if (side==LEFT) tile.color_box = { x:x+w*3/4, y:y, w:w/4, h:h }
-        else if (side==TOP) tile.color_box = { x:x, y:y+h*3/4, w:w, h:h/4 }
-        else if (side==RIGHT) tile.color_box = { x:x, y:y, w:w/4, h:h }
+        
+        tile.improvementIndicators = []
+        if (side==BOTTOM) {
+            tile.color_box = { x:x, y:y, w:w, h:h/4 }
+            const IND_W = w/Board.N_IMPROVEMENT_INDS
+            for (let i=0; i<Board.N_IMPROVEMENT_INDS; i++) {
+                tile.improvementIndicators.push({ x:x+IND_W*i, y:y, w:IND_W, h:h/4 })
+            }
+        }
+        else if (side==LEFT) {
+            const IND_W = h/Board.N_IMPROVEMENT_INDS
+            tile.color_box = { x:x+w*3/4, y:y, w:w/4, h:h }
+            for (let i=0; i<Board.N_IMPROVEMENT_INDS; i++) {
+                tile.improvementIndicators.push({ x:x+w*3/4, y:y+IND_W*i, w:w/4, h:IND_W })
+            }
+        }
+        else if (side==TOP) {
+            const IND_W = w/Board.N_IMPROVEMENT_INDS
+            tile.color_box = { x:x, y:y+h*3/4, w:w, h:h/4 }
+            for (let i=0; i<Board.N_IMPROVEMENT_INDS; i++) {
+                tile.improvementIndicators.push({ x:x+IND_W*i, y:y+h*3/4, w:IND_W, h:h/4 })
+            }
+        }
+        else if (side==RIGHT) {
+            const IND_W = h/Board.N_IMPROVEMENT_INDS
+            tile.color_box = { x:x, y:y, w:w/4, h:h }
+            for (let i=0; i<Board.N_IMPROVEMENT_INDS; i++) {
+                tile.improvementIndicators.push({ x:x, y:y+IND_W*i, w:w/4, h:IND_W })
+            }
+        }
     }
 
     draw(game) {
-        this.drawTiles()
+        this.drawTiles(game)
         this.drawPlayers(game)
     }
 
-    drawTiles() {
-        for (const t of this.tiles) {
+    drawTiles(game) {
+        for (let i=0; i<game.tiles.length; i++) {
+            const bt = this.tiles[i]
+            const gt = game.tiles[i]
             fill(255)
             stroke(0)
             strokeWeight(1)
-            rect(t.x, t.y, t.w, t.h)
-            if (Board.GROUP_COLORS[`${t.tile.group}`]) {
-                fill(Board.GROUP_COLORS[`${t.tile.group}`])
-                rect(t.color_box.x, t.color_box.y, t.color_box.w, t.color_box.h)
+            rect(bt.x, bt.y, bt.w, bt.h)
+            if (Board.GROUP_COLORS[`${gt.group}`]) {
+                fill(Board.GROUP_COLORS[`${gt.group}`])
+                rect(bt.color_box.x, bt.color_box.y, bt.color_box.w, bt.color_box.h)
+                const impInd = bt.improvementIndicators
+                fill('rgba(0,0,0, 0.5)')
+                for(let j=0; j<gt.improvementLevel; j++) {
+                    rect(impInd[j].x, impInd[j].y, impInd[j].w, impInd[j].h)
+                }
             }
             fill(0)
             noStroke()
             textAlign(CENTER, CENTER)
-            text(t.tile.name, t.x+t.w/2, t.y+t.h/2)
+            text(gt.name, bt.x+bt.w/2, bt.y+bt.h/2)
             // https://github.com/processing/p5.js/pull/5366
             //textWrap(WORD)
             //text(tile.name, x+w/2, y+h/2, w, h)
@@ -100,7 +134,7 @@ class Board {
             const player = game.getPlayers()[i]
             const tile = this.tiles[player.pos]
 
-            if (!player.isBackrupt) {
+            if (!player.isBankrupt) {
                 fill(Board.PLAYER_COLORS[i])
                 circle(
                     (tile.x + tile.w/2) + Board.PLAYER_OFFSET[i].x*this.playerSize, 
