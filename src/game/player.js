@@ -4,11 +4,27 @@ class Player {
         this.pos = 0
         this.jailTime = 0
         this.cash = Monopoly.STARTING_BALANCE
-        this.nGetOutOfJailFree = 0
+        this.getOutOfJailFree = []
         this.isBankrupt = false
     }
 
-    buyProperty(property) {
+    decideBuyProperty(game, property) {
         return true
+    }
+
+    decideUseGetOutOfJailFree(game) {
+        return true
+    }
+
+    hasGetOutOfJailFree() {
+        return this.getOutOfJailFree.length > 0
+    }
+
+    addGetOutOfJailFree(card) {
+        this.getOutOfJailFree.push(card)
+    }
+
+    useGetOutOfJailFree() {
+        return this.getOutOfJailFree.shift()
     }
 }

@@ -18,12 +18,39 @@ const MonopolyTests = {
         }
     },
 
-    "addGetOutOfJailFree": function() {
+    "addGetOutOfJailFree and useGetOutOfJailFree": function() {
         const game = new Monopoly([new Player("a")])
+        const p0 = game.getPlayer(0)
+        const comCard = game.communityChestCards.filter(x => x instanceof GetOutOfJailFreeCard)[0]
+        const comLength = game.communityChestCards.length
+        const chanceCard = game.chanceCards.filter(x => x instanceof GetOutOfJailFreeCard)[0]
+        const chanceLength = game.chanceCards.length
 
-        eq(game.getPlayer().nGetOutOfJailFree, 0)
-        game.addGetOutOfJailFree(game.getPlayer(), 1)
-        eq(game.getPlayer().nGetOutOfJailFree, 1)
+        eq(p0.hasGetOutOfJailFree(), false)
+        game.addGetOutOfJailFree(p0, comCard)
+        eq(p0.hasGetOutOfJailFree(), true)
+        eq(game.communityChestCards.length, comLength-1)
+        eq(game.chanceCards.length, chanceLength)
+        game.addGetOutOfJailFree(p0, chanceCard)
+        eq(p0.hasGetOutOfJailFree(), true)
+        eq(game.communityChestCards.length, comLength-1)
+        eq(game.chanceCards.length, chanceLength-1)
+
+        p0.jailTime = 99
+        game.useGetOutOfJailFree(p0, comCard)
+        eq(p0.jailTime, 0)
+        eq(p0.hasGetOutOfJailFree(), true)
+        eq(game.communityChestCards.length, comLength)
+        eq(game.communityChestCards[comLength-1], comCard)
+        eq(game.chanceCards.length, chanceLength-1)
+
+        p0.jailTime = 99
+        game.useGetOutOfJailFree(p0, chanceCard)
+        eq(p0.jailTime, 0)
+        eq(p0.hasGetOutOfJailFree(), false)
+        eq(game.communityChestCards.length, comLength)
+        eq(game.chanceCards.length, chanceLength)
+        eq(game.chanceCards[chanceLength-1], chanceCard)
     },
 
     'payTo': function() {
@@ -212,6 +239,23 @@ const MonopolyTests = {
         game.nextPlayer()
         eq(game.playerInd, 0)
         eq(game.nthDouble, 0)
+    },
+
+    "buyProperty": function() {
+        const game = new Monopoly([new Player("a"), new Player("b")])
+        const p0 = game.getPlayer(0)
+        const p1 = game.getPlayer(1)
+        const prop = game.tiles[Monopoly.PALL_MALL_IND]
+
+        eq(prop.owner, null)
+        eq(p0.cash, Monopoly.STARTING_BALANCE)
+        game.buyProperty(p0, prop) 
+        eq(prop.owner, p0)
+        eq(p0.cash, Monopoly.STARTING_BALANCE - prop.price)
+        game.buyProperty(p1, prop) 
+        eq(p1.cash, Monopoly.STARTING_BALANCE)
+        eq(prop.owner, p0)
+        eq(p0.cash, Monopoly.STARTING_BALANCE - prop.price)
     },
 
     "turn": function() {

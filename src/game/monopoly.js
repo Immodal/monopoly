@@ -3,18 +3,25 @@ class Monopoly {
     static STARTING_BALANCE = 1500
     static MAX_DBLS = 2
     static JAIL_TIME = 3
+    static JAIL_FINE = 50
+    static COMMUNITY_CHEST_ID = 1
+    static CHANCE_ID = 2
     static GROUPS = {
         BROWN: 1,
         TEAL: 2,
-        RAIL: 3,
         PINK: 4,
         ORANGE: 5,
         RED: 6,
         YELLOW: 7,
         GREEN:8,
-        BLUE: 9,
-        UTILITY: 10
+        BLUE: 9
     }
+    static RAIL_PRICE = 200
+    static RAIL_MORTGAGE = 100
+    static RAIL_RENTS = [25, 50, 100, 200]
+    static UTIL_PRICE = 150
+    static UTIL_MORTGAGE = 75
+    static UTIL_RENT_MULTS = [4, 10]
     // Update Indices if tile order changes
     static GO_IND = 0
     static KINGS_CROSS_IND = 5
@@ -27,55 +34,55 @@ class Monopoly {
     static TILES = [
         // 0
         new GoTile("Go", 200),
-        new PropertyTile("Old Kent Road", 60, Monopoly.GROUPS.BROWN),
+        new PropertyTile("Old Kent Road", 60, Monopoly.GROUPS.BROWN, 30, 50, 50, [2, 10, 30, 90, 160, 250]),
         new CommunityChestTile("Community Chest 1"),
-        new PropertyTile("Whitechapel Road", 60, Monopoly.GROUPS.BROWN),
+        new PropertyTile("Whitechapel Road", 60, Monopoly.GROUPS.BROWN, 30, 50, 50, [4, 20, 60, 180, 320, 450]),
         new TaxTile("Income Tax", 200),
-        new PropertyTile("King's Cross Station", 200, Monopoly.GROUPS.RAIL),
-        new PropertyTile("The Angel Islington", 100, Monopoly.GROUPS.TEAL),
+        new RailTile("King's Cross Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
+        new PropertyTile("The Angel Islington", 100, Monopoly.GROUPS.TEAL, 50, 50, 50, [6, 30, 90, 270, 400, 550]),
         new ChanceTile("Chance 1"),
-        new PropertyTile("Euston Road", 100, Monopoly.GROUPS.TEAL),
-        new PropertyTile("Pentonville Road", 120, Monopoly.GROUPS.TEAL),
+        new PropertyTile("Euston Road", 100, Monopoly.GROUPS.TEAL, 50, 50, 50, [6, 30, 90, 270, 400, 550]),
+        new PropertyTile("Pentonville Road", 120, Monopoly.GROUPS.TEAL, 60, 50, 50, [8, 40, 100, 300, 450, 600]),
         // 10
         new JailTile("Jail"),
-        new PropertyTile("Pall Mall", 140, Monopoly.GROUPS.PINK),
-        new PropertyTile("Electric Company", 150, Monopoly.GROUPS.UTILITY),
-        new PropertyTile("Whitehall", 140, Monopoly.GROUPS.PINK),
-        new PropertyTile("Northumberland Avenue", 160, Monopoly.GROUPS.PINK),
-        new PropertyTile("Marylebone Station", 200, Monopoly.GROUPS.RAIL),
-        new PropertyTile("Bow Street", 180, Monopoly.GROUPS.ORANGE),
+        new PropertyTile("Pall Mall", 140, Monopoly.GROUPS.PINK, 70, 100, 100, [10, 50, 150, 450, 625, 750]),
+        new UtilityTile("Electric Company", Monopoly.UTIL_PRICE, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
+        new PropertyTile("Whitehall", 140, Monopoly.GROUPS.PINK, 70, 100, 100, [10, 50, 150, 450, 625, 750]),
+        new PropertyTile("Northumberland Avenue", 160, Monopoly.GROUPS.PINK, 80, 100, 100, [12, 60, 180, 500, 700, 900]),
+        new RailTile("Marylebone Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
+        new PropertyTile("Bow Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, 100, [14, 70, 200, 550, 750, 950]),
         new CommunityChestTile("Community Chest 2"),
-        new PropertyTile("Marlborough Street", 180, Monopoly.GROUPS.ORANGE),
-        new PropertyTile("Vine Street", 200, Monopoly.GROUPS.ORANGE),
+        new PropertyTile("Marlborough Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, 100, [14, 70, 200, 550, 750, 950]),
+        new PropertyTile("Vine Street", 200, Monopoly.GROUPS.ORANGE, 100, 100, 100, [16, 80, 220, 600, 800, 1000]),
         // 20
         new FreeParkingTile("Free Parking"),
-        new PropertyTile("Strand", 220, Monopoly.GROUPS.RED),
+        new PropertyTile("Strand", 220, Monopoly.GROUPS.RED, 110, 150, 150, [18, 90, 250, 700, 875, 1050]),
         new ChanceTile("Chance 2"),
-        new PropertyTile("Fleet Street", 220, Monopoly.GROUPS.RED),
-        new PropertyTile("Trafalgar Square", 240, Monopoly.GROUPS.RED),
-        new PropertyTile("Fenchurch Station", 200, Monopoly.GROUPS.RAIL),
-        new PropertyTile("Leicester Square", 260, Monopoly.GROUPS.YELLOW),
-        new PropertyTile("Coventry Street", 260, Monopoly.GROUPS.YELLOW),
-        new PropertyTile("Water Works", 150, Monopoly.GROUPS.UTILITY),
-        new PropertyTile("Piccadilly", 280, Monopoly.GROUPS.YELLOW),
+        new PropertyTile("Fleet Street", 220, Monopoly.GROUPS.RED, 110, 150, 150, [18, 90, 250, 700, 875, 1050]),
+        new PropertyTile("Trafalgar Square", 240, Monopoly.GROUPS.RED, 120, 150, 150, [20, 100, 300, 750, 925, 1100]),
+        new RailTile("Fenchurch Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
+        new PropertyTile("Leicester Square", 260, Monopoly.GROUPS.YELLOW, 130, 150, 150, [22, 110, 330, 800, 975, 1150]),
+        new PropertyTile("Coventry Street", 260, Monopoly.GROUPS.YELLOW, 130, 150, 150, [22, 110, 330, 800, 975, 1150]),
+        new UtilityTile("Water Works", Monopoly.UTIL_PRICE, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
+        new PropertyTile("Piccadilly", 280, Monopoly.GROUPS.YELLOW, 140, 150, 150, [24, 120, 360, 850, 1025, 1200]),
         // 30
         new GoToJailTile("Go To Jail"),
-        new PropertyTile("Regent Street", 300, Monopoly.GROUPS.GREEN),
-        new PropertyTile("Oxford Street", 300, Monopoly.GROUPS.GREEN),
+        new PropertyTile("Regent Street", 300, Monopoly.GROUPS.GREEN, 150, 200, 200, [26, 130, 390, 900, 1100, 1275]),
+        new PropertyTile("Oxford Street", 300, Monopoly.GROUPS.GREEN, 150, 200, 200, [26, 130, 390, 900, 1100, 1275]),
         new CommunityChestTile("Community Chest 3"),
-        new PropertyTile("Bond Street", 320, Monopoly.GROUPS.GREEN),
-        new PropertyTile("Liverpool Station", 200, Monopoly.GROUPS.RAIL),
+        new PropertyTile("Bond Street", 320, Monopoly.GROUPS.GREEN, 160, 200, 200, [28, 150, 450, 1000, 1200, 1400]),
+        new RailTile("Liverpool Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
         new ChanceTile("Chance 3"),
-        new PropertyTile("Park Lane", 350, Monopoly.GROUPS.BLUE),
+        new PropertyTile("Park Lane", 350, Monopoly.GROUPS.BLUE, 175, 200, 200, [35, 175, 500, 1100, 1300, 1500]),
         new TaxTile("Super Tax", 100),
-        new PropertyTile("Mayfair", 400, Monopoly.GROUPS.BLUE)
+        new PropertyTile("Mayfair", 400, Monopoly.GROUPS.BLUE, 200, 200, 200, [50, 200, 600, 1400, 1700, 2000])
     ]
     static COMMUNITY_CHEST_CARDS = [
         new Card("Advance to \"Go\"", (game) => game.goTo(game.getPlayer(), Monopoly.GO_IND)),
         new Card("Bank error in your favor. Collect $200.", (game) => game.payTo(null, game.getPlayer(), 200)),
         new Card("Doctor's fees. Pay $50.", (game) => game.payTo(game.getPlayer(), null, 50)),
         new Card("From sale of stock you get $50.", (game) => game.payTo(null, game.getPlayer(), 50)),
-        new Card("Get Out of Jail Free.", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
+        new GetOutOfJailFreeCard(Monopoly.COMMUNITY_CHEST_ID),
         new Card("Grand Opera Night. Collect $50 from every player for opening night seats.", 
             (game) => game.collectFromOthers(game.getPlayer(), 50)
         ),
@@ -106,8 +113,8 @@ class Monopoly {
         new Card("Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay owner twice the rental which they are otherwise entitled.",
             (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
         ),
-        new Card("Bank pays you dividend of $50.", (game) => payTo(null, game.getPlayer(), 50)),
-        new Card("Get Out of Jail Free.", (game) => game.addGetOutOfJailFree(game.getPlayer(), 1)),
+        new Card("Bank pays you dividend of $50.", (game) => game.payTo(null, game.getPlayer(), 50)),
+        new GetOutOfJailFreeCard(Monopoly.CHANCE_ID),
         new Card("Go Back 3 spaces.", (game) => game.goTo(game.getPlayer(), game.getPlayer().pos-3)),
         new Card("Go to Jail. Do not pass GO, do not collect $200.", (game) => game.goToJail(game.getPlayer())),
         new Card("Make general repairs on all your property: For each house pay $25, For each hotel pay $100.",
@@ -128,6 +135,8 @@ class Monopoly {
         this.players = players
         this.communityChestCards = shuffle(Monopoly.COMMUNITY_CHEST_CARDS.map(x => x))
         this.chanceCards = shuffle(Monopoly.CHANCE_CARDS.map(x => x))
+        this.die1 = 0
+        this.die2 = 0
         this.playerInd = 0
         this.nthDouble = 0
         this.log_turns = false
@@ -137,9 +146,15 @@ class Monopoly {
     initTilesAndProperties() {
         this.tiles = Monopoly.TILES.map(x => x.clone())
         this.properties = {}
+        this.rails = {}
+        this.utilities = {}
         for (const t of this.tiles) {
             if (t instanceof PropertyTile) {
                 this.properties[t.name] = t
+            } else if (t instanceof RailTile) {
+                this.rails[t.name] = t
+            } else if (t instanceof UtilityTile) {
+                this.utilities[t.name] = t
             }
         }
     }
@@ -149,9 +164,15 @@ class Monopoly {
 
         const player = this.players[this.playerInd]
         die1 = Number.isInteger(die1) ? die1 : this.rollDie()
+        this.die1 = die1
         die2 = Number.isInteger(die2) ? die2 : this.rollDie()
+        this.die2 = die2
         let toNextPlayer = false
         this.log(`${player.name} rolled ${die1}, ${die2}`)
+
+        if (player.jailTime > 0 && player.hasGetOutOfJailFree() && player.decideUseGetOutOfJailFree(this)) {
+            this.useGetOutOfJailFree(player)
+        }
 
         if (player.jailTime > 0) {
             if (die1 == die2) {
@@ -161,6 +182,9 @@ class Monopoly {
             } else {
                 player.jailTime -= 1
                 this.log(`Didn't roll double, ${player.jailTime} Turns until release`)
+                if (player.jailTime==0) {
+                    this.payTo(player, null, Monopoly.JAIL_FINE)
+                }
             }
             toNextPlayer = true
         } else if (die1 == die2 && this.nthDouble >= Monopoly.MAX_DBLS) {
@@ -328,9 +352,27 @@ class Monopoly {
         }
     }
 
-    addGetOutOfJailFree(player, amount) {
-        player.nGetOutOfJailFree += amount
-        this.log(`${amount} \"Get Out Of Jail Free\" card ${amount>0 ? 'given to': 'taken from'} ${player.name}`)
+    getDeck(card) {
+        if (card.deckId == Monopoly.COMMUNITY_CHEST_ID) return this.communityChestCards
+        if (card.deckId == Monopoly.CHANCE_ID) return this.chanceCards
+    }
+
+    addGetOutOfJailFree(player, card) {
+        const deck = this.getDeck(card)
+        deck.splice(deck.indexOf(card), 1)
+        player.addGetOutOfJailFree(card)
+        this.log(`"Get Out Of Jail Free" card given to ${player.name}`)
+    }
+
+    useGetOutOfJailFree(player) {
+        if (player.hasGetOutOfJailFree()) {
+            this.log(`${player.name} used a "Get Out Of Jail Free" card`)
+            const card = player.useGetOutOfJailFree()
+            this.getDeck(card).push(card)
+            player.jailTime = 0
+        } else {
+            this.log(`${player.name} does not a "Get Out Of Jail Free" card`)
+        }
     }
 
     rollDie(min=1, max=6) {
