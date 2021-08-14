@@ -34,48 +34,48 @@ class Monopoly {
     static TILES = [
         // 0
         new GoTile("Go", 200),
-        new PropertyTile("Old Kent Road", 60, Monopoly.GROUPS.BROWN, 30, 50, 50, [2, 10, 30, 90, 160, 250]),
+        new PropertyTile("Old Kent Road", 60, Monopoly.GROUPS.BROWN, 30, 50, [2, 10, 30, 90, 160, 250]),
         new CommunityChestTile("Community Chest 1"),
-        new PropertyTile("Whitechapel Road", 60, Monopoly.GROUPS.BROWN, 30, 50, 50, [4, 20, 60, 180, 320, 450]),
+        new PropertyTile("Whitechapel Road", 60, Monopoly.GROUPS.BROWN, 30, 50, [4, 20, 60, 180, 320, 450]),
         new TaxTile("Income Tax", 200),
         new RailTile("King's Cross Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
-        new PropertyTile("The Angel Islington", 100, Monopoly.GROUPS.TEAL, 50, 50, 50, [6, 30, 90, 270, 400, 550]),
+        new PropertyTile("The Angel Islington", 100, Monopoly.GROUPS.TEAL, 50, 50, [6, 30, 90, 270, 400, 550]),
         new ChanceTile("Chance 1"),
-        new PropertyTile("Euston Road", 100, Monopoly.GROUPS.TEAL, 50, 50, 50, [6, 30, 90, 270, 400, 550]),
-        new PropertyTile("Pentonville Road", 120, Monopoly.GROUPS.TEAL, 60, 50, 50, [8, 40, 100, 300, 450, 600]),
+        new PropertyTile("Euston Road", 100, Monopoly.GROUPS.TEAL, 50, 50, [6, 30, 90, 270, 400, 550]),
+        new PropertyTile("Pentonville Road", 120, Monopoly.GROUPS.TEAL, 60, 50, [8, 40, 100, 300, 450, 600]),
         // 10
         new JailTile("Jail"),
-        new PropertyTile("Pall Mall", 140, Monopoly.GROUPS.PINK, 70, 100, 100, [10, 50, 150, 450, 625, 750]),
+        new PropertyTile("Pall Mall", 140, Monopoly.GROUPS.PINK, 70, 100, [10, 50, 150, 450, 625, 750]),
         new UtilityTile("Electric Company", Monopoly.UTIL_PRICE, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
-        new PropertyTile("Whitehall", 140, Monopoly.GROUPS.PINK, 70, 100, 100, [10, 50, 150, 450, 625, 750]),
-        new PropertyTile("Northumberland Avenue", 160, Monopoly.GROUPS.PINK, 80, 100, 100, [12, 60, 180, 500, 700, 900]),
+        new PropertyTile("Whitehall", 140, Monopoly.GROUPS.PINK, 70, 100, [10, 50, 150, 450, 625, 750]),
+        new PropertyTile("Northumberland Avenue", 160, Monopoly.GROUPS.PINK, 80, 100, [12, 60, 180, 500, 700, 900]),
         new RailTile("Marylebone Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
-        new PropertyTile("Bow Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, 100, [14, 70, 200, 550, 750, 950]),
+        new PropertyTile("Bow Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, [14, 70, 200, 550, 750, 950]),
         new CommunityChestTile("Community Chest 2"),
-        new PropertyTile("Marlborough Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, 100, [14, 70, 200, 550, 750, 950]),
-        new PropertyTile("Vine Street", 200, Monopoly.GROUPS.ORANGE, 100, 100, 100, [16, 80, 220, 600, 800, 1000]),
+        new PropertyTile("Marlborough Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, [14, 70, 200, 550, 750, 950]),
+        new PropertyTile("Vine Street", 200, Monopoly.GROUPS.ORANGE, 100, 100, [16, 80, 220, 600, 800, 1000]),
         // 20
         new FreeParkingTile("Free Parking"),
-        new PropertyTile("Strand", 220, Monopoly.GROUPS.RED, 110, 150, 150, [18, 90, 250, 700, 875, 1050]),
+        new PropertyTile("Strand", 220, Monopoly.GROUPS.RED, 110, 150, [18, 90, 250, 700, 875, 1050]),
         new ChanceTile("Chance 2"),
-        new PropertyTile("Fleet Street", 220, Monopoly.GROUPS.RED, 110, 150, 150, [18, 90, 250, 700, 875, 1050]),
-        new PropertyTile("Trafalgar Square", 240, Monopoly.GROUPS.RED, 120, 150, 150, [20, 100, 300, 750, 925, 1100]),
+        new PropertyTile("Fleet Street", 220, Monopoly.GROUPS.RED, 110, 150, [18, 90, 250, 700, 875, 1050]),
+        new PropertyTile("Trafalgar Square", 240, Monopoly.GROUPS.RED, 120, 150, [20, 100, 300, 750, 925, 1100]),
         new RailTile("Fenchurch Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
-        new PropertyTile("Leicester Square", 260, Monopoly.GROUPS.YELLOW, 130, 150, 150, [22, 110, 330, 800, 975, 1150]),
-        new PropertyTile("Coventry Street", 260, Monopoly.GROUPS.YELLOW, 130, 150, 150, [22, 110, 330, 800, 975, 1150]),
+        new PropertyTile("Leicester Square", 260, Monopoly.GROUPS.YELLOW, 130, 150, [22, 110, 330, 800, 975, 1150]),
+        new PropertyTile("Coventry Street", 260, Monopoly.GROUPS.YELLOW, 130, 150, [22, 110, 330, 800, 975, 1150]),
         new UtilityTile("Water Works", Monopoly.UTIL_PRICE, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
-        new PropertyTile("Piccadilly", 280, Monopoly.GROUPS.YELLOW, 140, 150, 150, [24, 120, 360, 850, 1025, 1200]),
+        new PropertyTile("Piccadilly", 280, Monopoly.GROUPS.YELLOW, 140, 150, [24, 120, 360, 850, 1025, 1200]),
         // 30
         new GoToJailTile("Go To Jail"),
-        new PropertyTile("Regent Street", 300, Monopoly.GROUPS.GREEN, 150, 200, 200, [26, 130, 390, 900, 1100, 1275]),
-        new PropertyTile("Oxford Street", 300, Monopoly.GROUPS.GREEN, 150, 200, 200, [26, 130, 390, 900, 1100, 1275]),
+        new PropertyTile("Regent Street", 300, Monopoly.GROUPS.GREEN, 150, 200, [26, 130, 390, 900, 1100, 1275]),
+        new PropertyTile("Oxford Street", 300, Monopoly.GROUPS.GREEN, 150, 200, [26, 130, 390, 900, 1100, 1275]),
         new CommunityChestTile("Community Chest 3"),
-        new PropertyTile("Bond Street", 320, Monopoly.GROUPS.GREEN, 160, 200, 200, [28, 150, 450, 1000, 1200, 1400]),
+        new PropertyTile("Bond Street", 320, Monopoly.GROUPS.GREEN, 160, 200, [28, 150, 450, 1000, 1200, 1400]),
         new RailTile("Liverpool Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
         new ChanceTile("Chance 3"),
-        new PropertyTile("Park Lane", 350, Monopoly.GROUPS.BLUE, 175, 200, 200, [35, 175, 500, 1100, 1300, 1500]),
+        new PropertyTile("Park Lane", 350, Monopoly.GROUPS.BLUE, 175, 200, [35, 175, 500, 1100, 1300, 1500]),
         new TaxTile("Super Tax", 100),
-        new PropertyTile("Mayfair", 400, Monopoly.GROUPS.BLUE, 200, 200, 200, [50, 200, 600, 1400, 1700, 2000])
+        new PropertyTile("Mayfair", 400, Monopoly.GROUPS.BLUE, 200, 200, [50, 200, 600, 1400, 1700, 2000])
     ]
     static COMMUNITY_CHEST_CARDS = [
         new Card("Advance to \"Go\"", (game) => game.goTo(game.getPlayer(), Monopoly.GO_IND)),
@@ -276,7 +276,7 @@ class Monopoly {
 
         if (rem.length <= 1) {
             this.ended = true
-            if (rem.length == 1) this.log(`${rem[0]} has won the game!!`)
+            if (rem.length == 1) this.log(`${rem[0].name} has won the game!!`)
             else this.log("***_____ GAME ENDED WITH NO WINNER _____***")
         }
 
@@ -287,12 +287,20 @@ class Monopoly {
         return this.players
     }
 
+    transferPropertyTo(new_owner, tile) {
+        if (tile instanceof PropertyTile || tile instanceof RailTile || tile instanceof UtilityTile) {
+            tile.owner = new_owner
+            if (tile.owner) this.log(`Ownership of ${tile.name} transfered to ${tile.owner.name}`)
+            else this.log(`Ownership of ${tile.name} transfered to Bank`)
+        }
+    }
+
     buyProperty(player, property) {
         if (property.owner) {
             this.log(`Failed to buy ${property.name}, already owned by ${property.owner.name}`)
         } else if (player.canAfford(property.price)) {
-            property.owner = player
-            this.log(`${property.owner.name} has bought ${property.name}`)
+            this.log(`${player.name} has bought ${property.name}`)
+            this.transferPropertyTo(player, property)
             this.payTo(property.owner, null, property.price)
             return true
         } else {
@@ -336,6 +344,7 @@ class Monopoly {
         } else if (payer.isBankrupt) {
             this.log(`***_____ ${payer.name} IS NO LONGER IN THE GAME! _____***`)
         } else if (!payer.canAfford(amount)) {
+            this.log("***_____ MORTGAGING AND SELLING PROPERTY NOT IMPLEMENTED _____***")
             this.bankrupt(payer, recipient)
         } else {
             payer.cash -= amount
@@ -347,10 +356,20 @@ class Monopoly {
         }
     }
 
-    bankrupt(player, recipient=null) {
-        player.isBankrupt = true
-        this.log("***_____ BANKRUPTCY NOT FULLY IMPLEMENTED _____***")
-        this.log(`${player.name} is bankrupt!`)
+    bankrupt(payer, recipient=null) {
+        this.log(`${payer.name} is bankrupt!`)
+        this.payTo(payer, recipient, payer.cash)
+        for (const t of this.tiles) {
+            if (t.owner && t.owner==payer) {
+                if (t instanceof PropertyTile) {
+                    this.log(`Selling houses on ${t.name}`)
+                    this.payTo(null, recipient, t.improvementLevel*t.houseCost/2)
+                    t.improvementLevel = 0
+                }
+                this.transferPropertyTo(recipient, t)
+            }
+        }
+        payer.isBankrupt = true
     }
 
     collectFromOthers(player, amount) {

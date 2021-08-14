@@ -85,13 +85,12 @@ class RailTile extends _UtilityTile {
 
 
 class PropertyTile extends Tile {
-    constructor(name, price, group, mortgage_value, house_cost, hotel_cost, rents) {
+    constructor(name, price, group, mortgageValue, houseCost, rents) {
         super(name)
         this.price = price
         this.group = group
-        this.mortgage_value = mortgage_value
-        this.house_cost = house_cost
-        this.hotel_cost = hotel_cost
+        this.mortgageValue = mortgageValue
+        this.houseCost = houseCost
         this.rents = rents
         this.owner = null
         this.improvementLevel = 0
@@ -116,8 +115,7 @@ class PropertyTile extends Tile {
     clone() {
         const c = new this.constructor(
             this.name, this.price, this.group, 
-            this.mortgage_value, this.house_cost, this.hotel_cost,
-            this.rents)
+            this.mortgageValue, this.houseCost, this.rents)
         c.owner = this.owner
         c.improvementLevel = this.improvementLevel
         return c
@@ -140,13 +138,12 @@ class PropertyTile extends Tile {
 
         if (this.improvementLevel == min && min < this.rents.length-1) {
             const impIsHotel = min == this.rents.length-2
-            const improvementCost = impIsHotel ? this.hotel_cost : this.house_cost
-            if (this.owner.canAfford(improvementCost)) {
+            if (this.owner.canAfford(this.houseCost)) {
                 this.improvementLevel += 1
                 game.log(`${impIsHotel ? 'Hotel' : 'House'} built on ${this.name}`)
-                game.payTo(this.owner, null, improvementCost)
+                game.payTo(this.owner, null, this.houseCost)
             } else {
-                game.log(`${this.owner.name}(${this.owner.cash}) can't afford to build ${impIsHotel ? 'Hotel' : 'House'}(${impIsHotel ? this.hotel_cost : this.house_cost}) on ${this.name}`)
+                game.log(`${this.owner.name}(${this.owner.cash}) can't afford to build ${impIsHotel ? 'Hotel' : 'House'}(${this.houseCost}) on ${this.name}`)
             }
         } else if (this.improvementLevel == this.rents.length-1) {
             game.log(`${this.name} is at max level`)

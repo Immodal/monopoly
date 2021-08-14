@@ -289,15 +289,39 @@ const MonopolyTests = {
         const game = new Monopoly([new Player("a"), new Player("b")])
         const p0 = game.getPlayer(0)
         const p1 = game.getPlayer(1)
+        const group = Monopoly.GROUPS.RED
+        const groupMembers = game.getGroupMembers(group)
 
+        for (const m of groupMembers) {
+            game.buyProperty(p0, m)
+        }
+
+        for (const m of groupMembers) {
+            m.improve(game)
+        }
+
+        const groupCost = groupMembers.reduce((acc, v) => acc + v.price, 0)
+        const groupImpCost = groupMembers.reduce((acc, v) => acc + v.houseCost * v.improvementLevel, 0)
+        const remainingCash = Monopoly.STARTING_BALANCE - groupCost - groupImpCost
         eq(p0.isBankrupt, false)
         eq(p1.isBankrupt, false)
-        game.bankrupt(p0)
+        eq(p0.cash, remainingCash)
+        game.bankrupt(p0, p1)
         eq(p0.isBankrupt, true)
+        eq(p0.cash, 0)
         eq(p1.isBankrupt, false)
+        eq(p1.cash, Monopoly.STARTING_BALANCE + remainingCash + groupImpCost/2)
+        for (const m of groupMembers) {
+            eq(m.owner, p1)
+        }
         game.bankrupt(p1)
         eq(p0.isBankrupt, true)
+        eq(p0.cash, 0)
         eq(p1.isBankrupt, true)
+        eq(p1.cash, 0)
+        for (const m of groupMembers) {
+            eq(m.owner, null)
+        }
     },
 
     "hasEnded": function() {
