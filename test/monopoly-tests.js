@@ -285,6 +285,33 @@ const MonopolyTests = {
         eq(game.groupIsMonopoly(group), true)
     },
 
+    "bankrupt": function() {
+        const game = new Monopoly([new Player("a"), new Player("b")])
+        const p0 = game.getPlayer(0)
+        const p1 = game.getPlayer(1)
+
+        eq(p0.isBankrupt, false)
+        eq(p1.isBankrupt, false)
+        game.bankrupt(p0)
+        eq(p0.isBankrupt, true)
+        eq(p1.isBankrupt, false)
+        game.bankrupt(p1)
+        eq(p0.isBankrupt, true)
+        eq(p1.isBankrupt, true)
+    },
+
+    "hasEnded": function() {
+        const game = new Monopoly([new Player("a"), new Player("b"), new Player("c")])
+        const p0 = game.getPlayer(0)
+        const p1 = game.getPlayer(1)
+
+        eq(game.hasEnded(), false)
+        game.bankrupt(p0)
+        eq(game.hasEnded(), false)
+        game.bankrupt(p1)
+        eq(game.hasEnded(), true)
+    },
+
     "turn": function() {
         // Never roll doubles, will always change player
         let game = new Monopoly([new Player("a"), new Player("b")])

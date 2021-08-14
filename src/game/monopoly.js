@@ -257,8 +257,7 @@ class Monopoly {
     }
 
     nextPlayer() {
-        this.checkForWinner()
-        if (!this.ended) {
+        if (!this.hasEnded()) {
             this.playerInd = (this.playerInd + 1) % this.players.length
             while (this.getPlayer().isBankrupt) {
                 this.playerInd = (this.playerInd + 1) % this.players.length
@@ -267,9 +266,11 @@ class Monopoly {
         }
     }
 
-    checkForWinner() {
+    hasEnded() {
+        if (this.ended) return true
+
         let rem = []
-        for (const p in this.players) {
+        for (const p of this.players) {
             if (!p.isBankrupt) rem.push(p)
         }
 
@@ -278,6 +279,8 @@ class Monopoly {
             if (rem.length == 1) this.log(`${rem[0]} has won the game!!`)
             else this.log("***_____ GAME ENDED WITH NO WINNER _____***")
         }
+
+        return this.ended
     }
 
     getPlayers() {
