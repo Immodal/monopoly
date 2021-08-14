@@ -102,7 +102,7 @@ class Monopoly {
                 for (const p of game.getOwnedProperties(player)) {
                     if (p.improvementLevel>=p.rents.length-1) {
                         game.payTo(player, null, 115)
-                    } else {
+                    } else if (p.improvementLevel>0) {
                         game.payTo(player, null, 40 * p.improvementLevel)
                     }
                 }
@@ -146,7 +146,16 @@ class Monopoly {
         new Card("Go Back 3 spaces.", (game) => game.goTo(game.getPlayer(), game.getPlayer().pos-3)),
         new Card("Go to Jail. Do not pass GO, do not collect $200.", (game) => game.goToJail(game.getPlayer())),
         new Card("Make general repairs on all your property: For each house pay $25, For each hotel pay $100.",
-            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+            (game) => {
+                const player = game.getPlayer()
+                for (const p of game.getOwnedProperties(player)) {
+                    if (p.improvementLevel>=p.rents.length-1) {
+                        game.payTo(player, null, 100)
+                    } else if (p.improvementLevel>0) {
+                        game.payTo(player, null, 25 * p.improvementLevel)
+                    }
+                }
+            }
         ),
         new Card("Pay speeding fine of $15.", (game) => game.payTo(game.getPlayer(), null, 15)),
         new Card("Take a ride to King’s Cross Station. If you pass Go, collect $200.", (game) => game.goTo(game.getPlayer(), Monopoly.KINGS_CROSS_IND)),
@@ -401,11 +410,11 @@ class Monopoly {
         this.payTo(payer, recipient, payer.cash)
         for (const p of this.getOwnedProperties(payer)) {
             if (p.improvementLevel>0) {
-                this.log(`Selling houses on ${t.name}`)
+                this.log(`Selling houses on ${p.name}`)
                 this.payTo(null, recipient, p.improvementLevel*p.houseCost*Monopoly.HOUSE_SALE_MULT)
                 p.improvementLevel = 0
             }
-            this.transferPropertyTo(recipient, t)
+            this.transferPropertyTo(recipient, p)
         }
         payer.isBankrupt = true
     }

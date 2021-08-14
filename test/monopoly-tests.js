@@ -264,6 +264,48 @@ const MonopolyTests = {
         eq(prop1.owner, null)
     },
 
+    "paying utilities rent": function() {
+        const game = new Monopoly([new Player("a"), new Player("b")])
+        const p0 = game.getPlayer(0)
+        const p1 = game.getPlayer(1)
+
+        game.playerInd = 1
+        game.transferPropertyTo(p0, game.tiles[Monopoly.UTILITY_INDS[0]])
+        game.turn(6, 6)
+        eq(p0.cash, Monopoly.STARTING_BALANCE + 12*Monopoly.UTIL_RENT_MULTS[0])
+        eq(p1.cash, Monopoly.STARTING_BALANCE - 12*Monopoly.UTIL_RENT_MULTS[0])
+
+        game.playerInd = 1
+        p0.cash = Monopoly.STARTING_BALANCE
+        p1.cash = Monopoly.STARTING_BALANCE
+        p1.pos = 0
+        game.transferPropertyTo(p0, game.tiles[Monopoly.UTILITY_INDS[1]])
+        game.turn(6, 6)
+        eq(p0.cash, Monopoly.STARTING_BALANCE + 12*Monopoly.UTIL_RENT_MULTS[1])
+        eq(p1.cash, Monopoly.STARTING_BALANCE - 12*Monopoly.UTIL_RENT_MULTS[1])
+    },
+
+    "paying rail rent": function() {
+        const game = new Monopoly([new Player("a"), new Player("b")])
+        const p0 = game.getPlayer(0)
+        const p1 = game.getPlayer(1)
+
+        game.playerInd = 1
+        game.transferPropertyTo(p0, game.tiles[Monopoly.RAIL_INDS[0]])
+        game.turn(3, 2)
+        eq(p0.cash, Monopoly.STARTING_BALANCE + Monopoly.RAIL_RENTS[0])
+        eq(p1.cash, Monopoly.STARTING_BALANCE - Monopoly.RAIL_RENTS[0])
+
+        game.playerInd = 1
+        p0.cash = Monopoly.STARTING_BALANCE
+        p1.cash = Monopoly.STARTING_BALANCE
+        p1.pos = 0
+        game.transferPropertyTo(p0, game.tiles[Monopoly.RAIL_INDS[1]])
+        game.turn(3, 2)
+        eq(p0.cash, Monopoly.STARTING_BALANCE + Monopoly.RAIL_RENTS[1])
+        eq(p1.cash, Monopoly.STARTING_BALANCE - Monopoly.RAIL_RENTS[1])
+    },
+
     "getGroupMembers": function() {
         const game = new Monopoly([new Player("a"), new Player("b")])
         eq(game.getGroupMembers(Monopoly.GROUPS.RED).length, 3)

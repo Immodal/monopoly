@@ -60,13 +60,15 @@ class _UtilityTile extends Tile {
 class UtilityTile extends _UtilityTile {
     getRentOwed(game) {
         let nOwned = -1
-        for (const r in game.utilities) {
-            if (r.owner == this.owner) {
+        for (const uName in game.utilities) {
+            const u = game.utilities[uName]
+            if (u.owner == this.owner) {
                 nOwned += 1
             }
         }
+        game.log(nOwned)
 
-        return (game.die1 + game.die2) * nOwned>=0 ? this.rent[nOwned] : 0
+        return nOwned>=0 ? (game.die1 + game.die2) * this.rents[nOwned] : 0
     }
 }
 
@@ -74,12 +76,13 @@ class UtilityTile extends _UtilityTile {
 class RailTile extends _UtilityTile {
     getRentOwed(game) {
         let nOwned = -1
-        for (const r in game.rails) {
+        for (const rName in game.rails) {
+            const r = game.rails[rName]
             if (r.owner == this.owner) {
                 nOwned += 1
             }
         }
-        return nOwned>=0 ? this.rent[nOwned] : 0
+        return nOwned>=0 ? this.rents[nOwned] : 0
     }
 }
 
