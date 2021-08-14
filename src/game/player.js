@@ -8,7 +8,15 @@ class Player {
         this.isBankrupt = false
     }
 
+    canAfford(amount) {
+        return this.cash >= amount
+    }
+
     decideBuyProperty(game, property) {
+        return true
+    }
+
+    decideImproveProperty(game, property) {
         return true
     }
 

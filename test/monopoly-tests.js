@@ -246,6 +246,7 @@ const MonopolyTests = {
         const p0 = game.getPlayer(0)
         const p1 = game.getPlayer(1)
         const prop = game.tiles[Monopoly.PALL_MALL_IND]
+        const prop1 = game.tiles[Monopoly.MAYFAIR_IND]
 
         eq(prop.owner, null)
         eq(p0.cash, Monopoly.STARTING_BALANCE)
@@ -256,6 +257,11 @@ const MonopolyTests = {
         eq(p1.cash, Monopoly.STARTING_BALANCE)
         eq(prop.owner, p0)
         eq(p0.cash, Monopoly.STARTING_BALANCE - prop.price)
+
+        p1.cash = 1
+        game.buyProperty(p1, prop1) 
+        eq(p1.cash, 1)
+        eq(prop1.owner, null)
     },
 
     "turn": function() {

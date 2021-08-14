@@ -287,15 +287,19 @@ class Monopoly {
     buyProperty(player, property) {
         if (property.owner) {
             this.log(`Failed to buy ${property.name}, already owned by ${property.owner.name}`)
-        } else if (player.cash<property.price) {
-            this.log(`Failed to buy ${property.name} (${property.price}), ${player.name} doesn't have enough cash (${player.cash})`)
-        } else {
+        } else if (player.canAfford(property.price)) {
             property.owner = player
-            player.cash -= property.price
             this.log(`${property.owner.name} has bought ${property.name}`)
+            this.payTo(property.owner, null, property.price)
             return true
+        } else {
+            this.log(`Failed to buy ${property.name} (${property.price}), ${player.name} doesn't have enough cash (${player.cash})`)
         }
         return false
+    }
+
+    getOwnedGroupMembers(player, group) {
+        return this.tiles.filter(x => x.group == group && x.owner == player)
     }
 
     drawCommunityChestCard() {
@@ -319,7 +323,7 @@ class Monopoly {
             this.log(`$${amount} given to ${recipient.name}`)
         } else if (payer.isBankrupt) {
             this.log(`***_____ ${payer.name} IS NO LONGER IN THE GAME! _____***`)
-        } else if (payer.cash < amount) {
+        } else if (!payer.canAfford(amount)) {
             this.bankrupt(payer, recipient)
         } else {
             payer.cash -= amount

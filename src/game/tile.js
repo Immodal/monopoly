@@ -90,18 +90,19 @@ class PropertyTile extends Tile {
         this.price = price
         this.group = group
         this.mortgage_value = mortgage_value
-        this.hotel_cost = house_cost
+        this.house_cost = house_cost
         this.hotel_cost = hotel_cost
         this.rents = rents
         this.owner = null
-        this.nHouses = 0
-        this.nHotels = 0
+        this.improvementLevel = 0
     }
 
     arrive(game) {
         const player = game.getPlayer()
         if (player==this.owner) {
-            game.log("***_____ PROPERTY IMPROVEMENT NOT IMPLEMENTED _____***")
+            if (player.decideImproveProperty(game, this)) {
+                this.improve(game)
+            }
         } else if(this.owner && player!=this.owner) {
             game.log(`${player.name} owes ${this.owner.name} rent`)
             game.payTo(player, this.owner, this.getRentOwed())
@@ -118,14 +119,35 @@ class PropertyTile extends Tile {
             this.mortgage_value, this.house_cost, this.hotel_cost,
             this.rents)
         c.owner = this.owner
-        c.nHouses = this.nHouses
-        c.nHotels = this.nHotels
+        c.improvementLevel = this.improvementLevel
         return c
     }
 
     getRentOwed() {
-        if (this.nHotels>0) return this.rents[this.rents.length-1]
-        return this.rents[this.nHouses]
+        return this.rents[this.improvementLevel]
+    }
+
+    improve(game) {
+        let min = 0
+        for (const m of game.getOwnedGroupMembers(this.owner, this.group)) {
+            if (min > m.improvementLevel) min = m.improvementLevel
+        }
+
+        if (this.improvementLevel == min && min < this.rents.length-1) {
+            const impIsHotel = min == this.rents.length-2
+            const improvementCost = impIsHotel ? this.hotel_cost : this.house_cost
+            if (this.owner.canAfford(improvementCost)) {
+                this.improvementLevel += 1
+                game.log(`${impIsHotel ? 'Hotel' : 'House'} built on ${this.name}`)
+                game.payTo(this.owner, null, improvementCost)
+            } else {
+                game.log(`${this.owner.name}(${this.owner.cash}) can't afford to build ${impIsHotel ? 'Hotel' : 'House'}(${impIsHotel ? this.hotel_cost : this.house_cost}) on ${this.name}`)
+            }
+        } else if (this.improvementLevel == this.rents.length-1) {
+            game.log(`${this.name} is at max level`)
+        } else {
+            game.log(`Unable to improve ${this.name}, improve other properties in group first`)
+        }
     }
 }
 
