@@ -4,7 +4,7 @@ let board = null
 let game = null
 
 function setup() {
-    frameRate(5)
+    //frameRate(5)
     const canvas = createCanvas(CANVAS_SIZE, CANVAS_SIZE)
     canvas.parent("#cv")
 
@@ -19,7 +19,7 @@ function setup() {
         //new Player('g'),
         //new Player('h')
     ])
-    game.log_turns = true
+    //game.log_turns = true
 }
 
 function draw() {

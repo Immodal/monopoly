@@ -6,6 +6,7 @@ class Player {
         this.cash = Monopoly.STARTING_BALANCE
         this.getOutOfJailFree = []
         this.isBankrupt = false
+        this.nTurns = 0
     }
 
     canAfford(amount) {

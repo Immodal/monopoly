@@ -178,6 +178,10 @@ class Monopoly {
         this.nthDouble = 0
         this.log_turns = false
         this.ended = false
+
+        // Analytics
+        this.nRounds = 0
+        this.tileActivity = new Array(this.tiles.length).fill(0)
     }
 
     initTilesAndProperties() {
@@ -200,6 +204,7 @@ class Monopoly {
         if (this.ended) return 
 
         const player = this.players[this.playerInd]
+        player.nTurns += 1
         die1 = Number.isInteger(die1) ? die1 : this.rollDie()
         this.die1 = die1
         die2 = Number.isInteger(die2) ? die2 : this.rollDie()
@@ -238,6 +243,7 @@ class Monopoly {
         }
 
         this.log(`End ${player.name} turn`)
+        this.tileActivity[player.pos] += 1
         if (toNextPlayer || player.isBankrupt) this.nextPlayer()
     }
 
@@ -295,11 +301,13 @@ class Monopoly {
 
     nextPlayer() {
         if (!this.hasEnded()) {
+            const oldInd = this.playerInd
             this.playerInd = (this.playerInd + 1) % this.players.length
             while (this.getPlayer().isBankrupt) {
                 this.playerInd = (this.playerInd + 1) % this.players.length
             }
             this.nthDouble = 0
+            if (oldInd>this.playerInd) this.nRounds += 1
         }
     }
 
