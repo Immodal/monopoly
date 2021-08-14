@@ -6,6 +6,7 @@ class Monopoly {
     static JAIL_FINE = 50
     static COMMUNITY_CHEST_ID = 1
     static CHANCE_ID = 2
+    static HOUSE_SALE_MULT = 0.5
     static GROUPS = {
         BROWN: 1,
         TEAL: 2,
@@ -96,7 +97,16 @@ class Monopoly {
         new Card("School Fees. Pay $50.", (game) => game.payTo(game.getPlayer(), null, 50)),
         new Card("Receive $25 consultancy fee.", (game) => game.payTo(null, game.getPlayer(), 25)),
         new Card("You are assessed for street repairs: Pay $40 per house and $115 per hotel you own.", 
-            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+            (game) => {
+                const player = game.getPlayer()
+                for (const p of game.getOwnedProperties(player)) {
+                    if (p.improvementLevel>=p.rents.length-1) {
+                        game.payTo(player, null, 115)
+                    } else {
+                        game.payTo(player, null, 40 * p.improvementLevel)
+                    }
+                }
+            }
         ),
         new Card("You have won second prize in a beauty contest. Collect $10.", 
             (game) => game.payTo(null, game.getPlayer(), 10)
@@ -108,10 +118,28 @@ class Monopoly {
         new Card("Advance to Trafalgar Square. If you pass Go, collect $200.", (game) => game.goTo(game.getPlayer(), Monopoly.TRAFALGAR_IND)),
         new Card("Advance to Pall Mall. If you pass Go, collect $200.", (game) => game.goTo(game.getPlayer(), Monopoly.PALL_MALL_IND)),
         new Card("Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total of 10 times the amount thrown", 
-            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+            (game) => {
+                const player = game.getPlayer()
+                game.goToClosestUtility(player, true, false)
+                const utility = game.tiles[player.pos]
+                if (utility.owned && utility.owner != player) {
+                    game.payTo(player, utility.owner, (game.rollDie() + game.rollDie()) * 10)
+                } else if (!utility.owned && player.decideBuyProperty(game, this)) {
+                    game.buyProperty(player, this)
+                }
+            }
         ),
         new Card("Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay owner twice the rental which they are otherwise entitled.",
-            (game) => game.log("***_____ CARD NOT IMPLEMENTED _____***")
+            (game) => {
+                const player = game.getPlayer()
+                game.goToClosestRailroad(player, true, false)
+                const rail = game.tiles[player.pos]
+                if (rail.owned && rail.owner != player) {
+                    game.payTo(player, rail.owner, rail.getRentOwed(game)*2)
+                } else if (!rail.owned && player.decideBuyProperty(game, this)) {
+                    game.buyProperty(player, this)
+                }
+            }
         ),
         new Card("Bank pays you dividend of $50.", (game) => game.payTo(null, game.getPlayer(), 50)),
         new GetOutOfJailFreeCard(Monopoly.CHANCE_ID),
@@ -287,8 +315,20 @@ class Monopoly {
         return this.players
     }
 
+    isOwnableTile(tile) {
+        return tile instanceof PropertyTile || tile instanceof RailTile || tile instanceof UtilityTile
+    }
+
+    getOwnedProperties(player) {
+        const owned = []
+        for (const t of this.tiles) {
+            if (this.isOwnableTile(t) && t.owner==player) owned.push(t)
+        }
+        return owned
+    }
+
     transferPropertyTo(new_owner, tile) {
-        if (tile instanceof PropertyTile || tile instanceof RailTile || tile instanceof UtilityTile) {
+        if (this.isOwnableTile(tile)) {
             tile.owner = new_owner
             if (tile.owner) this.log(`Ownership of ${tile.name} transfered to ${tile.owner.name}`)
             else this.log(`Ownership of ${tile.name} transfered to Bank`)
@@ -359,15 +399,13 @@ class Monopoly {
     bankrupt(payer, recipient=null) {
         this.log(`${payer.name} is bankrupt!`)
         this.payTo(payer, recipient, payer.cash)
-        for (const t of this.tiles) {
-            if (t.owner && t.owner==payer) {
-                if (t instanceof PropertyTile) {
-                    this.log(`Selling houses on ${t.name}`)
-                    this.payTo(null, recipient, t.improvementLevel*t.houseCost/2)
-                    t.improvementLevel = 0
-                }
-                this.transferPropertyTo(recipient, t)
+        for (const p of this.getOwnedProperties(payer)) {
+            if (p.improvementLevel>0) {
+                this.log(`Selling houses on ${t.name}`)
+                this.payTo(null, recipient, p.improvementLevel*p.houseCost*Monopoly.HOUSE_SALE_MULT)
+                p.improvementLevel = 0
             }
+            this.transferPropertyTo(recipient, t)
         }
         payer.isBankrupt = true
     }
