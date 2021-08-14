@@ -133,9 +133,9 @@ class PropertyTile extends Tile {
             return
         }
 
-        let min = 0
+        let min = -1
         for (const m of game.getGroupMembers(this.group)) {
-            if (min > m.improvementLevel) min = m.improvementLevel
+            if (min<0 || min>m.improvementLevel) min = m.improvementLevel
         }
 
         if (this.improvementLevel == min && min < this.rents.length-1) {
