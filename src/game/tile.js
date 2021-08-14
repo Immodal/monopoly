@@ -66,7 +66,6 @@ class UtilityTile extends _UtilityTile {
                 nOwned += 1
             }
         }
-        game.log(nOwned)
 
         return nOwned>=0 ? (game.die1 + game.die2) * this.rents[nOwned] : 0
     }

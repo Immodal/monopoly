@@ -125,7 +125,7 @@ class Monopoly {
                 if (utility.owned && utility.owner != player) {
                     game.payTo(player, utility.owner, (game.rollDie() + game.rollDie()) * 10)
                 } else if (!utility.owned && player.decideBuyProperty(game, this)) {
-                    game.buyProperty(player, this)
+                    game.buyProperty(player, utility)
                 }
             }
         ),
@@ -137,7 +137,7 @@ class Monopoly {
                 if (rail.owned && rail.owner != player) {
                     game.payTo(player, rail.owner, rail.getRentOwed(game)*2)
                 } else if (!rail.owned && player.decideBuyProperty(game, this)) {
-                    game.buyProperty(player, this)
+                    game.buyProperty(player, rail)
                 }
             }
         ),
