@@ -147,13 +147,15 @@ class Board {
         stroke(0)
         line(plotX, plotY, xLim, plotY) // Max
         line(plotX, plotY+sectionH/2, xLim, plotY+sectionH/2) // Mid
+        let minPrinted = false
         for (let i=0; i<props.length; i++) {
             const propH = map(props[i].rentCollected, 0, rentMax, 0, sectionH)
-            if(props[i].rentCollected==rentMin) {
+            if(!minPrinted && props[i].rentCollected==rentMin) {
                 noStroke()
                 fill(0)
                 text(`Min: ${rentMin}`, plotX-margin, yLim-propH - txtH/2)
                 stroke(0)
+                minPrinted = true
             }
             fill(Board.GROUP_COLORS[`${props[i].group}`])
             rect(plotX + i*propW, yLim-propH, propW, propH)
