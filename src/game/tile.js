@@ -36,13 +36,18 @@ class _UtilityTile extends Tile {
         this.mortgage_value = mortgage_value
         this.rents = rents
         this.owner = null
+
+        // Analytics
+        this.rentCollected = 0
     }
 
     arrive(game) {
         const player = game.getPlayer()
         if(this.owner && player!=this.owner) {
-            game.log(`${player.name} owes ${this.owner.name} rent`)
+            const rent = this.getRentOwed(game)
+            game.log(`${player.name} owes ${this.owner.name} $${rent} in rent`)
             game.payTo(player, this.owner, this.getRentOwed(game))
+            this.rentCollected += rent
         } else {
             if (player.decideBuyProperty(game, this)) {
                 game.buyProperty(player, this)
@@ -97,6 +102,9 @@ class PropertyTile extends Tile {
         this.rents = rents
         this.owner = null
         this.improvementLevel = 0
+        
+        // Analytics
+        this.rentCollected = 0
     }
 
     arrive(game) {
@@ -106,8 +114,10 @@ class PropertyTile extends Tile {
                 this.improve(game)
             }
         } else if(this.owner && player!=this.owner) {
-            game.log(`${player.name} owes ${this.owner.name} rent`)
+            const rent = this.getRentOwed(game)
+            game.log(`${player.name} owes ${this.owner.name} $${rent} in rent`)
             game.payTo(player, this.owner, this.getRentOwed())
+            this.rentCollected += rent
         } else {
             if (player.decideBuyProperty(game, this)) {
                 game.buyProperty(player, this)

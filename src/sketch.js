@@ -14,10 +14,10 @@ function setup() {
         new Player('Eve'),
         new Player('Robby'),
         new Player('Georgia'),
-        new Player('e'),
-        new Player('f'),
-        new Player('g'),
-        new Player('h')
+        //new Player('e'),
+        //new Player('f'),
+        //new Player('g'),
+        //new Player('h')
     ])
     //game.log_turns = true
 }
