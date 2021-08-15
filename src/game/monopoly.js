@@ -10,14 +10,14 @@ class Monopoly {
     static GROUPS = {
         BROWN: 1,
         TEAL: 2,
-        RAIL: 3,
         PINK: 4,
         ORANGE: 5,
         RED: 6,
         YELLOW: 7,
         GREEN:8,
         BLUE: 9,
-        UTILITY: 10
+        UTILITY: 10,
+        RAIL: 11,
     }
     static RAIL_PRICE = 200
     static RAIL_MORTGAGE = 100

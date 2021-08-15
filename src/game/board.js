@@ -13,8 +13,8 @@ class Board {
         [`${Monopoly.GROUPS.YELLOW}`]: '#ffff00',
         [`${Monopoly.GROUPS.GREEN}`]: '#33cc33',
         [`${Monopoly.GROUPS.BLUE}`]: '#0033cc',
-        [`${Monopoly.GROUPS.RAIL}`]: '#eeeeee',
-        [`${Monopoly.GROUPS.UTILITY}`]: '#aaaaaa',
+        [`${Monopoly.GROUPS.RAIL}`]: '#ccffcc',
+        [`${Monopoly.GROUPS.UTILITY}`]: '#ccccff',
     }
     static PLAYER_COLORS = [
         '#8B4513','#00cdcd','#ffa7b6','#ffa500',
@@ -144,7 +144,8 @@ class Board {
             textAlign(LEFT, CENTER)
             text(`${players[i].cash}`, cashX, playerY)
             // Properties
-            const props = game.getOwnedProperties(players[i]).filter(x=>x instanceof PropertyTile)
+            const props = game.getOwnedProperties(players[i])
+            props.sort((a, b) => a.group>b.group ? 1 : -1)
             for (let j=0; j<props.length; j++) {
                 stroke(0)
                 fill(Board.GROUP_COLORS[`${props[j].group}`])
@@ -157,7 +158,9 @@ class Board {
         for (let i=0; i<game.tiles.length; i++) {
             const bt = this.tiles[i]
             const gt = game.tiles[i]
-            fill(255)
+            if (gt instanceof UtilityTile || gt instanceof RailTile) {
+                fill(Board.GROUP_COLORS[`${gt.group}`])
+            } else fill(255)
             stroke(0)
             strokeWeight(1)
             rect(bt.x, bt.y, bt.w, bt.h)
