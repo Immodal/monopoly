@@ -12,7 +12,9 @@ class Board {
         [`${Monopoly.GROUPS.RED}`]: '#ff0000',
         [`${Monopoly.GROUPS.YELLOW}`]: '#ffff00',
         [`${Monopoly.GROUPS.GREEN}`]: '#33cc33',
-        [`${Monopoly.GROUPS.BLUE}`]: '#0033cc'
+        [`${Monopoly.GROUPS.BLUE}`]: '#0033cc',
+        [`${Monopoly.GROUPS.RAIL}`]: '#eeeeee',
+        [`${Monopoly.GROUPS.UTILITY}`]: '#aaaaaa',
     }
     static PLAYER_COLORS = [
         '#8B4513','#00cdcd','#ffa7b6','#ffa500',
@@ -97,8 +99,58 @@ class Board {
     }
 
     draw(game) {
+        this.drawStats(game)
         this.drawTiles(game)
         this.drawPlayers(game)
+    }
+
+    drawStats(game) {
+        const margin = this.playerSize*0.2
+        const x0 = this.tileHeight + margin
+        const y0 = this.tileHeight + margin
+        const players = game.getPlayers()
+
+        const rowMargin = margin
+        const colMargin = 3*margin
+        // Columns
+        const playerX = x0
+        const cashX = x0 + this.playerSize + colMargin
+        const propsX = cashX + this.playerSize + colMargin
+        //
+        const propW = this.playerSize*0.5
+        const propH = this.playerSize
+        const txtH = this.tileHeight*0.12
+        noStroke()
+        fill(0)
+        textSize(txtH)
+        textAlign(LEFT, TOP)
+        text(`Rounds: ${game.nRounds}`, x0, y0)
+        const tbl1Y = y0 + txtH + rowMargin
+        text("Players", x0, tbl1Y)
+        text("Cash", cashX, tbl1Y)
+        text("Properties", propsX, tbl1Y)
+        const tbl1ContentY = tbl1Y + txtH + rowMargin
+        for (let i=0; i<players.length; i++) {
+            const rowY = tbl1ContentY + i*(this.playerSize+rowMargin)
+            const playerY = rowY + this.playerSize/2
+            // Player
+            stroke(0)
+            fill(Board.PLAYER_COLORS[i])
+            circle(playerX + this.playerSize/2, playerY, this.playerSize)
+            // Cash
+            noStroke()
+            fill(0)
+            textSize(txtH)
+            textAlign(LEFT, CENTER)
+            text(`${players[i].cash}`, cashX, playerY)
+            // Properties
+            const props = game.getOwnedProperties(players[i]).filter(x=>x instanceof PropertyTile)
+            for (let j=0; j<props.length; j++) {
+                stroke(0)
+                fill(Board.GROUP_COLORS[`${props[j].group}`])
+                rect(propsX + j*propW, rowY, propW, propH)
+            }
+        }
     }
 
     drawTiles(game) {
@@ -109,7 +161,7 @@ class Board {
             stroke(0)
             strokeWeight(1)
             rect(bt.x, bt.y, bt.w, bt.h)
-            if (Board.GROUP_COLORS[`${gt.group}`]) {
+            if (gt instanceof PropertyTile && Board.GROUP_COLORS[`${gt.group}`]) {
                 fill(Board.GROUP_COLORS[`${gt.group}`])
                 rect(bt.color_box.x, bt.color_box.y, bt.color_box.w, bt.color_box.h)
                 const impInd = bt.improvementIndicators
@@ -120,6 +172,7 @@ class Board {
             }
             fill(0)
             noStroke()
+            textSize(this.tileHeight*0.12)
             textAlign(CENTER, CENTER)
             text(gt.name, bt.x+bt.w/2, bt.y+bt.h/2)
             // https://github.com/processing/p5.js/pull/5366

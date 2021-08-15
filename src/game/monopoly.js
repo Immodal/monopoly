@@ -10,12 +10,14 @@ class Monopoly {
     static GROUPS = {
         BROWN: 1,
         TEAL: 2,
+        RAIL: 3,
         PINK: 4,
         ORANGE: 5,
         RED: 6,
         YELLOW: 7,
         GREEN:8,
-        BLUE: 9
+        BLUE: 9,
+        UTILITY: 10
     }
     static RAIL_PRICE = 200
     static RAIL_MORTGAGE = 100
@@ -39,7 +41,7 @@ class Monopoly {
         new CommunityChestTile("Community Chest 1"),
         new PropertyTile("Whitechapel Road", 60, Monopoly.GROUPS.BROWN, 30, 50, [4, 20, 60, 180, 320, 450]),
         new TaxTile("Income Tax", 200),
-        new RailTile("King's Cross Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
+        new RailTile("King's Cross Station", Monopoly.RAIL_PRICE, Monopoly.GROUPS.RAIL, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
         new PropertyTile("The Angel Islington", 100, Monopoly.GROUPS.TEAL, 50, 50, [6, 30, 90, 270, 400, 550]),
         new ChanceTile("Chance 1"),
         new PropertyTile("Euston Road", 100, Monopoly.GROUPS.TEAL, 50, 50, [6, 30, 90, 270, 400, 550]),
@@ -47,10 +49,10 @@ class Monopoly {
         // 10
         new JailTile("Jail"),
         new PropertyTile("Pall Mall", 140, Monopoly.GROUPS.PINK, 70, 100, [10, 50, 150, 450, 625, 750]),
-        new UtilityTile("Electric Company", Monopoly.UTIL_PRICE, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
+        new UtilityTile("Electric Company", Monopoly.UTIL_PRICE, Monopoly.GROUPS.UTILITY, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
         new PropertyTile("Whitehall", 140, Monopoly.GROUPS.PINK, 70, 100, [10, 50, 150, 450, 625, 750]),
         new PropertyTile("Northumberland Avenue", 160, Monopoly.GROUPS.PINK, 80, 100, [12, 60, 180, 500, 700, 900]),
-        new RailTile("Marylebone Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
+        new RailTile("Marylebone Station", Monopoly.RAIL_PRICE, Monopoly.GROUPS.RAIL, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
         new PropertyTile("Bow Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, [14, 70, 200, 550, 750, 950]),
         new CommunityChestTile("Community Chest 2"),
         new PropertyTile("Marlborough Street", 180, Monopoly.GROUPS.ORANGE, 90, 100, [14, 70, 200, 550, 750, 950]),
@@ -61,10 +63,10 @@ class Monopoly {
         new ChanceTile("Chance 2"),
         new PropertyTile("Fleet Street", 220, Monopoly.GROUPS.RED, 110, 150, [18, 90, 250, 700, 875, 1050]),
         new PropertyTile("Trafalgar Square", 240, Monopoly.GROUPS.RED, 120, 150, [20, 100, 300, 750, 925, 1100]),
-        new RailTile("Fenchurch Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
+        new RailTile("Fenchurch Station", Monopoly.RAIL_PRICE, Monopoly.GROUPS.RAIL, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
         new PropertyTile("Leicester Square", 260, Monopoly.GROUPS.YELLOW, 130, 150, [22, 110, 330, 800, 975, 1150]),
         new PropertyTile("Coventry Street", 260, Monopoly.GROUPS.YELLOW, 130, 150, [22, 110, 330, 800, 975, 1150]),
-        new UtilityTile("Water Works", Monopoly.UTIL_PRICE, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
+        new UtilityTile("Water Works", Monopoly.UTIL_PRICE, Monopoly.GROUPS.UTILITY, Monopoly.UTIL_MORTGAGE, Monopoly.UTIL_RENT_MULTS),
         new PropertyTile("Piccadilly", 280, Monopoly.GROUPS.YELLOW, 140, 150, [24, 120, 360, 850, 1025, 1200]),
         // 30
         new GoToJailTile("Go To Jail"),
@@ -72,7 +74,7 @@ class Monopoly {
         new PropertyTile("Oxford Street", 300, Monopoly.GROUPS.GREEN, 150, 200, [26, 130, 390, 900, 1100, 1275]),
         new CommunityChestTile("Community Chest 3"),
         new PropertyTile("Bond Street", 320, Monopoly.GROUPS.GREEN, 160, 200, [28, 150, 450, 1000, 1200, 1400]),
-        new RailTile("Liverpool Station", Monopoly.RAIL_PRICE, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
+        new RailTile("Liverpool Station", Monopoly.RAIL_PRICE, Monopoly.GROUPS.RAIL, Monopoly.RAIL_MORTGAGE, Monopoly.RAIL_RENTS),
         new ChanceTile("Chance 3"),
         new PropertyTile("Park Lane", 350, Monopoly.GROUPS.BLUE, 175, 200, [35, 175, 500, 1100, 1300, 1500]),
         new TaxTile("Super Tax", 100),
@@ -182,6 +184,7 @@ class Monopoly {
         // Analytics
         this.nRounds = 0
         this.tileActivity = new Array(this.tiles.length).fill(0)
+        this.monopolies = new Set()
     }
 
     initTilesAndProperties() {
@@ -347,6 +350,7 @@ class Monopoly {
     transferPropertyTo(new_owner, tile) {
         if (this.isOwnableTile(tile)) {
             tile.owner = new_owner
+            if (tile.group) this.groupIsMonopoly(tile.group)
             if (tile.owner) this.log(`Ownership of ${tile.name} transfered to ${tile.owner.name}`)
             else this.log(`Ownership of ${tile.name} transfered to Bank`)
         }
@@ -369,9 +373,13 @@ class Monopoly {
     groupIsMonopoly(group) {
         let prevOwner = null
         for (const m of this.getGroupMembers(group)) { 
-            if (m.owner == null || (prevOwner && m.owner!=prevOwner)) return false
+            if (m.owner == null || (prevOwner && m.owner!=prevOwner)) {
+                this.monopolies.delete(group)
+                return false
+            }
             prevOwner = m.owner
         }
+        this.monopolies.add(group)
         return true
     }
 
@@ -400,6 +408,8 @@ class Monopoly {
             this.log(`$${amount} given to ${recipient.name}`)
         } else if (payer.isBankrupt) {
             this.log(`***_____ ${payer.name} IS NO LONGER IN THE GAME! _____***`)
+        }else if (recipient && recipient.isBankrupt) {
+            this.log(`***_____ ${recipient.name} IS NO LONGER IN THE GAME! _____***`)
         } else if (!payer.canAfford(amount)) {
             this.log("***_____ MORTGAGING AND SELLING PROPERTY NOT IMPLEMENTED _____***")
             this.bankrupt(payer, recipient)

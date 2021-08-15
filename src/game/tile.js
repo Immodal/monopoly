@@ -29,9 +29,10 @@ class GoTile extends Tile {
 
 
 class _UtilityTile extends Tile {
-    constructor(name, price, mortgage_value, rents) {
+    constructor(name, price, group, mortgage_value, rents) {
         super(name)
         this.price = price
+        this.group = group
         this.mortgage_value = mortgage_value
         this.rents = rents
         this.owner = null
@@ -50,7 +51,7 @@ class _UtilityTile extends Tile {
     }
 
     clone() {
-        const c = new this.constructor(this.name, this.price, this.mortgage_value, this.rents)
+        const c = new this.constructor(this.name, this.price, this.group, this.mortgage_value, this.rents)
         c.owner = this.owner
         return c
     }
@@ -124,6 +125,9 @@ class PropertyTile extends Tile {
     }
 
     getRentOwed() {
+        if (this.improvementLevel==0 && game.groupIsMonopoly(this.group)) {
+            return this.rents[this.improvementLevel] * 2
+        }
         return this.rents[this.improvementLevel]
     }
 
