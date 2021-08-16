@@ -121,37 +121,58 @@ class Board {
     }
 
     drawStats(game) {
-        const yRentGraph = this.drawPlayerTable(game, this.statX, this.statY, this.statXLim)
-        this.drawRentCollectedGraph(game, this.statX, yRentGraph + this.statMargin, this.statXLim, this.statYLim)
+        const playerEndY = this.drawPlayerTable(game, this.statX, this.statY, this.statXLim)
+        const arrivalStartY = playerEndY + this.statMargin
+        const arrivalEndY = arrivalStartY + (this.statYLim-arrivalStartY)/2
+        this.drawArrivalsGraph(game, this.statX, arrivalStartY, this.statXLim, arrivalEndY)
+        const rentStartY = arrivalEndY + this.statMargin
+        this.drawRentCollectedGraph(game, this.statX, rentStartY + this.statMargin, this.statXLim, this.statYLim)
     }
 
     drawRentCollectedGraph(game, x0, y0, xLim, yLim) {
-        this.text(`Rent Collected`, x0, y0, LEFT, TOP)
+        const getAttr = x => x.rentCollected
+        this.drawTileAttributeGraph(game, x0, y0, xLim, yLim, `Rent Collected`, getAttr)
+    }
+
+    drawArrivalsGraph(game, x0, y0, xLim, yLim) {
+        const getAttr = x => x.arrivals
+        this.drawTileAttributeGraph(game, x0, y0, xLim, yLim, `Arrivals`, getAttr)
+    }
+
+    drawTileAttributeGraph(game, x0, y0, xLim, yLim, title, getAttr) {
+        this.text(title, x0, y0, LEFT, TOP)
         const plotY = y0 + this.statMargin + this.statTxtH
         const plotX = x0 + this.statMargin + 2*this.playerSize
         const plotH = yLim - plotY
         const props = game.ownableTiles
-        const rentMin = props.reduce((prev, curr) => prev.rentCollected < curr.rentCollected ? prev : curr).rentCollected
-        const rentMax = props.reduce((prev, curr) => prev.rentCollected > curr.rentCollected ? prev : curr).rentCollected
+        const sortedProps = props.slice(0)
+        sortedProps.sort((a, b) => {
+            if (getAttr(a)>getAttr(b)) return 1
+            else if(getAttr(a)==getAttr(b)) return 0
+            else return -1
+        })
+        const min = sortedProps.length>0 ? getAttr(sortedProps[0]) : 0
+        const median = sortedProps.length>0 ? getAttr(sortedProps[Math.floor(sortedProps.length/2)]) : 0
+        const max = sortedProps.length>0 ? getAttr(sortedProps[sortedProps.length-1]) : 0
         const propW = (xLim - plotX)/props.length
 
         stroke(0)
         line(plotX, plotY, xLim, plotY)
-        //console.log(`${rentMax}, ${plotX-xLim}, ${plotY-this.statTxtH/2}`)
-        this.text(`Max: ${rentMax}`, plotX-this.statMargin, plotY-this.statTxtH/2, RIGHT, TOP)
-        stroke(0)
-        line(plotX, plotY+plotH/2, xLim, plotY+plotH/2) // Mid
-        this.text(`${rentMax/2}`, x0, plotY+plotH/2 - this.statTxtH/2, LEFT, TOP)
-        this.text(`0`, x0, yLim-this.statTxtH/2, LEFT, TOP)
-
+        this.text(`Max: ${max}`, plotX-this.statMargin, plotY-this.statTxtH/2, RIGHT, TOP)
         stroke(0)
         let minPrinted = false
+        let medPrinted = false
         for (let i=0; i<props.length; i++) {
-            const propH = map(props[i].rentCollected, 0, rentMax, 0, plotH)
-            if(!minPrinted && props[i].rentCollected==rentMin) {
-                this.text(`Min: ${rentMin}`, plotX-this.statMargin, yLim-propH-this.statTxtH/2, RIGHT, TOP)
+            const propH = map(getAttr(props[i]), 0, max, 0, plotH)
+            if(!minPrinted && getAttr(props[i])==min) {
+                this.text(`Min: ${min}`, plotX-this.statMargin, yLim-propH-this.statTxtH/2, RIGHT, TOP)
                 stroke(0)
                 minPrinted = true
+            } else if(!medPrinted && getAttr(props[i])==median) {
+                this.text(`Med: ${median}`, plotX-this.statMargin, yLim-propH-this.statTxtH/2, RIGHT, TOP)
+                stroke(0)
+                line(plotX, yLim-propH, xLim, yLim-propH)
+                medPrinted = true
             }
             fill(Board.GROUP_COLORS[`${props[i].group}`])
             rect(plotX + i*propW, yLim-propH, propW, propH)

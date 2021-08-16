@@ -39,6 +39,7 @@ class _UtilityTile extends Tile {
 
         // Analytics
         this.rentCollected = 0
+        this.arrivals = 0
     }
 
     arrive(game) {
@@ -53,6 +54,7 @@ class _UtilityTile extends Tile {
                 game.buyProperty(player, this)
             }
         }
+        this.arrivals += 1
     }
 
     clone() {
@@ -105,6 +107,7 @@ class PropertyTile extends Tile {
         
         // Analytics
         this.rentCollected = 0
+        this.arrivals = 0
     }
 
     arrive(game) {
@@ -123,6 +126,7 @@ class PropertyTile extends Tile {
                 game.buyProperty(player, this)
             }
         }
+        this.arrivals += 1
     }
 
     clone() {
