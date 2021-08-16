@@ -201,6 +201,7 @@ class Monopoly {
                 this.utilities[t.name] = t
             }
         }
+        this.ownableTiles = this.tiles.filter(x=>this.isOwnableTile(x))
     }
 
     turn(die1=null, die2=null, passGo=true, callArrive=true) {
@@ -341,7 +342,7 @@ class Monopoly {
 
     getOwnedProperties(player) {
         const owned = []
-        for (const t of this.tiles) {
+        for (const t of this.ownableTiles) {
             if (this.isOwnableTile(t) && t.owner==player) owned.push(t)
         }
         return owned

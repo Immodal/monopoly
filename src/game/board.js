@@ -59,6 +59,14 @@ class Board {
         for (let i=Board.N_MID_TILES; i>0; i--) {
             this._insert(this.x, this.y+this.tileHeight+(i-1)*this.tileWidth, this.tileHeight, this.tileWidth, LEFT)
         }
+
+        // Stats
+        this.statMargin = this.playerSize*0.2
+        this.statTxtH = this.tileHeight*0.12
+        this.statX = this.tileHeight + this.statMargin
+        this.statY = this.tileHeight + this.statMargin
+        this.statXLim = this.x + this.size - this.tileHeight - this.statMargin
+        this.statYLim = this.y + this.size - this.tileHeight - this.statMargin
     }
 
     _insert(x, y, w, h, side) { 
@@ -104,56 +112,44 @@ class Board {
         this.drawPlayers(game)
     }
 
-    drawStats(game) {
-        const baseMargin = this.playerSize*0.2
-
-        const yRentGraph = this.drawPlayerTable(game, 
-            this.tileHeight + baseMargin, 
-            this.tileHeight + baseMargin, 
-            baseMargin
-        )
-
-        this.drawRentCollectedGraph(game, 
-            this.tileHeight + baseMargin, 
-            yRentGraph + baseMargin, 
-            baseMargin
-        )
-    }
-
-    drawRentCollectedGraph(game, x0, y0, margin) {
-        const txtH = this.tileHeight*0.12
+    text(t, x, y, hAlign, vAlign) {
         noStroke()
         fill(0)
-        textSize(txtH)
-        textAlign(LEFT, TOP)
-        text(`Rent Collected`, x0, y0)
+        textSize(this.statTxtH)
+        textAlign(hAlign, vAlign)
+        text(t, x, y)
+    }
 
-        const plotY = y0 + margin + txtH
-        const plotX = x0 + margin + 2*this.playerSize
-        const xLim = this.x + this.size - this.tileHeight - margin
-        const yLim = this.y + this.size - this.tileHeight - margin
-        const sectionH = yLim - plotY
+    drawStats(game) {
+        const yRentGraph = this.drawPlayerTable(game, this.statX, this.statY, this.statXLim)
+        this.drawRentCollectedGraph(game, this.statX, yRentGraph + this.statMargin, this.statXLim, this.statYLim)
+    }
 
-        const props = game.tiles.filter(x=>game.isOwnableTile(x))
+    drawRentCollectedGraph(game, x0, y0, xLim, yLim) {
+        this.text(`Rent Collected`, x0, y0, LEFT, TOP)
+        const plotY = y0 + this.statMargin + this.statTxtH
+        const plotX = x0 + this.statMargin + 2*this.playerSize
+        const plotH = yLim - plotY
+        const props = game.ownableTiles
         const rentMin = props.reduce((prev, curr) => prev.rentCollected < curr.rentCollected ? prev : curr).rentCollected
         const rentMax = props.reduce((prev, curr) => prev.rentCollected > curr.rentCollected ? prev : curr).rentCollected
         const propW = (xLim - plotX)/props.length
 
-        text(`${rentMax/2}`, x0, plotY+sectionH/2 - txtH/2)
-        text(`0`, x0, yLim-txtH/2)
-        textAlign(RIGHT, TOP)
-        text(`Max: ${rentMax}`, plotX-margin, plotY-txtH/2)
-        
         stroke(0)
-        line(plotX, plotY, xLim, plotY) // Max
-        line(plotX, plotY+sectionH/2, xLim, plotY+sectionH/2) // Mid
+        line(plotX, plotY, xLim, plotY)
+        //console.log(`${rentMax}, ${plotX-xLim}, ${plotY-this.statTxtH/2}`)
+        this.text(`Max: ${rentMax}`, plotX-this.statMargin, plotY-this.statTxtH/2, RIGHT, TOP)
+        stroke(0)
+        line(plotX, plotY+plotH/2, xLim, plotY+plotH/2) // Mid
+        this.text(`${rentMax/2}`, x0, plotY+plotH/2 - this.statTxtH/2, LEFT, TOP)
+        this.text(`0`, x0, yLim-this.statTxtH/2, LEFT, TOP)
+
+        stroke(0)
         let minPrinted = false
         for (let i=0; i<props.length; i++) {
-            const propH = map(props[i].rentCollected, 0, rentMax, 0, sectionH)
+            const propH = map(props[i].rentCollected, 0, rentMax, 0, plotH)
             if(!minPrinted && props[i].rentCollected==rentMin) {
-                noStroke()
-                fill(0)
-                text(`Min: ${rentMin}`, plotX-margin, yLim-propH - txtH/2)
+                this.text(`Min: ${rentMin}`, plotX-this.statMargin, yLim-propH-this.statTxtH/2, RIGHT, TOP)
                 stroke(0)
                 minPrinted = true
             }
@@ -162,27 +158,22 @@ class Board {
         }
     }
 
-    drawPlayerTable(game, x0, y0, margin) {
-        const rowMargin = margin
-        const colMargin = 3*margin
-        // Columns
+    drawPlayerTable(game, x0, y0, xLim) {
+        this.text(`Rounds: ${game.nRounds}`, x0, y0, LEFT, TOP)
+        // Headers
+        const rowMargin = this.statMargin
+        const colMargin = 3*this.statMargin
+        const tbl1Y = y0 + this.statTxtH + rowMargin
         const playerX = x0
+        this.text("Players", playerX, tbl1Y, LEFT, TOP)
         const cashX = x0 + this.playerSize + colMargin
+        this.text("Cash", cashX, tbl1Y, LEFT, TOP)
         const propsX = cashX + this.playerSize + colMargin
-        //
-        const propW = this.playerSize*0.5
+        this.text("Properties", propsX, tbl1Y, LEFT, TOP)
+        // Content
+        const tbl1ContentY = tbl1Y + this.statTxtH + rowMargin
+        const propW = (xLim - propsX)/game.ownableTiles.length
         const propH = this.playerSize
-        const txtH = this.tileHeight*0.12
-        noStroke()
-        fill(0)
-        textSize(txtH)
-        textAlign(LEFT, TOP)
-        text(`Rounds: ${game.nRounds}`, x0, y0)
-        const tbl1Y = y0 + txtH + rowMargin
-        text("Players", x0, tbl1Y)
-        text("Cash", cashX, tbl1Y)
-        text("Properties", propsX, tbl1Y)
-        const tbl1ContentY = tbl1Y + txtH + rowMargin
         const players = game.getPlayers()
         let yMax = tbl1ContentY
         for (let i=0; i<players.length; i++) {
@@ -194,14 +185,14 @@ class Board {
             fill(Board.PLAYER_COLORS[i])
             circle(playerX + this.playerSize/2, playerY, this.playerSize)
             // Cash
-            noStroke()
-            fill(0)
-            textSize(txtH)
-            textAlign(LEFT, CENTER)
-            text(`${players[i].cash}`, cashX, playerY)
+            this.text(`${players[i].cash}`, cashX, playerY, LEFT, CENTER)
             // Properties
             const props = game.getOwnedProperties(players[i])
-            props.sort(this._sortPropByGroup)
+            props.sort((a, b) => {
+                if (a.group>b.group) return 1
+                else if(a.group==b.group) return 0
+                else return -1
+            })
             stroke(0)
             for (let j=0; j<props.length; j++) {
                 fill(Board.GROUP_COLORS[`${props[j].group}`])
@@ -209,12 +200,6 @@ class Board {
             }
         }
         return yMax
-    }
-
-    _sortPropByGroup(a, b) {
-        if (a.group>b.group) return 1
-        else if(a.group==b.group) return 0
-        else return -1
     }
 
     drawTiles(game) {
