@@ -63,8 +63,8 @@ class Board {
         // Stats
         this.statMargin = this.playerSize*0.2
         this.statTxtH = this.tileHeight*0.12
-        this.statX = this.tileHeight + this.statMargin
-        this.statY = this.tileHeight + this.statMargin
+        this.statX = this.x + this.tileHeight + this.statMargin
+        this.statY = this.y + this.tileHeight + this.statMargin
         this.statXLim = this.x + this.size - this.tileHeight - this.statMargin
         this.statYLim = this.y + this.size - this.tileHeight - this.statMargin
     }
@@ -121,9 +121,12 @@ class Board {
     }
 
     drawStats(game) {
-        const playerEndY = this.drawPlayerTable(game, this.statX, this.statY, this.statXLim)
+        this.text(`Rounds: ${game.nRounds}`, this.statX, this.statY, LEFT, TOP)
+        const startY = this.statY + this.statTxtH
+        const playerEndY = game.scenario == Monopoly.SCENARIOS.IMP_COMP ? startY : this.drawPlayerTable(game, this.statX, startY, this.statXLim)
+        const graphH = (this.statYLim - (playerEndY + this.statMargin) - this.statMargin)/2
         const arrivalStartY = playerEndY + this.statMargin
-        const arrivalEndY = arrivalStartY + (this.statYLim-arrivalStartY)/2
+        const arrivalEndY = arrivalStartY + graphH
         this.drawArrivalsGraph(game, this.statX, arrivalStartY, this.statXLim, arrivalEndY)
         const rentStartY = arrivalEndY + this.statMargin
         this.drawRentCollectedGraph(game, this.statX, rentStartY + this.statMargin, this.statXLim, this.statYLim)
@@ -180,7 +183,6 @@ class Board {
     }
 
     drawPlayerTable(game, x0, y0, xLim) {
-        this.text(`Rounds: ${game.nRounds}`, x0, y0, LEFT, TOP)
         // Headers
         const rowMargin = this.statMargin
         const colMargin = 3*this.statMargin

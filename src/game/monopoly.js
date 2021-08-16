@@ -168,6 +168,10 @@ class Monopoly {
         new Card("Your building loan matures. Receive $150.", (game) => game.payTo(null, game.getPlayer(), 150)),
         new Card("Your have won a crossword competition. Collect $100.", (game) => game.payTo(null, game.getPlayer(), 100))
     ]
+    static SCENARIOS = {
+        NONE: 0,
+        IMP_COMP: 1
+    }
 
     constructor(players) {
         this.initTilesAndProperties()
@@ -185,6 +189,33 @@ class Monopoly {
         this.nRounds = 0
         this.tileActivity = new Array(this.tiles.length).fill(0)
         this.monopolies = new Set()
+
+        // Special
+        this.scenario = Monopoly.SCENARIOS.NONE
+        this._banks = [new Player("Bank0"), new Player("Bank1"), new Player("Bank2"), new Player("Bank3")]
+        this.noPay = false
+        this.noBuy = false
+    }
+
+    improvementComparisonSetup(level, singleOwnerRail=true, singleOwnerUtils=true) {
+        let railCount = 0
+        let utilCount = 0
+        for (const t of this.ownableTiles) {
+            if (singleOwnerRail && t instanceof RailTile) {
+                this.transferPropertyTo(this._banks[railCount], t)
+                railCount += 1
+            } else if (singleOwnerUtils && t instanceof UtilityTile) {
+                this.transferPropertyTo(this._banks[utilCount], t)
+                utilCount += 1
+            } else {
+                this.transferPropertyTo(this._banks[0], t)
+                t.improvementLevel = level
+            }
+        }
+
+        this.noPay = true
+        this.noBuy = true
+        this.scenario = Monopoly.SCENARIOS.IMP_COMP
     }
 
     initTilesAndProperties() {
@@ -358,7 +389,8 @@ class Monopoly {
     }
 
     buyProperty(player, property) {
-        if (property.owner) {
+        if (this.noBuy) return false
+        else if (property.owner) {
             this.log(`Failed to buy ${property.name}, already owned by ${property.owner.name}`)
         } else if (player.canAfford(property.price)) {
             this.log(`${player.name} has bought ${property.name}`)
@@ -403,7 +435,7 @@ class Monopoly {
     }
 
     payTo(payer, recipient, amount) {
-        if (payer==recipient) return
+        if (this.noPay || payer==recipient) return
         else if (!payer) {
             recipient.cash += amount
             this.log(`$${amount} given to ${recipient.name}`)

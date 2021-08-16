@@ -1,29 +1,34 @@
-const CANVAS_SIZE = 700
+const BOARD_SIZE = 500
+const NX = 3
+const NY = 2
+const CANVAS_W = BOARD_SIZE * NX
+const CANVAS_H = BOARD_SIZE * NY
 
-let board = null
-let game = null
+let boards = []
+let games = []
 
 function setup() {
     //frameRate(5)
-    const canvas = createCanvas(CANVAS_SIZE, CANVAS_SIZE)
+    const canvas = createCanvas(CANVAS_W, CANVAS_H)
     canvas.parent("#cv")
 
-    board = new Board(0,0, CANVAS_SIZE)
-    game = new Monopoly([
-        new Player('Nigel'),
-        new Player('Eve'),
-        new Player('Robby'),
-        new Player('Georgia'),
-        new Player('e'),
-        new Player('f'),
-        new Player('g'),
-        new Player('h')
-    ])
-    //game.log_turns = true
+    for (let i=0; i<NY; i++) {
+        for (let j=0; j<NX; j++) {
+            boards.push(new Board(j*BOARD_SIZE, i*BOARD_SIZE, BOARD_SIZE))
+            const game = new Monopoly([
+                new Player('p1'),new Player('p2'),new Player('p3'),new Player('p4'),
+                new Player('p5'),new Player('p6'),new Player('p7'),new Player('p8')
+            ])
+            game.improvementComparisonSetup(i*NX+j)
+            games.push(game)
+        }
+    }
 }
 
 function draw() {
     background(255)
-    game.turn()
-    board.draw(game)
+    for (let i=0; i<boards.length; i++) {
+        if (games[i].nRounds<5000) games[i].turn()
+        boards[i].draw(games[i])
+    }
 }

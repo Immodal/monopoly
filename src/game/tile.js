@@ -119,7 +119,7 @@ class PropertyTile extends Tile {
         } else if(this.owner && player!=this.owner) {
             const rent = this.getRentOwed(game)
             game.log(`${player.name} owes ${this.owner.name} $${rent} in rent`)
-            game.payTo(player, this.owner, this.getRentOwed())
+            game.payTo(player, this.owner, rent)
             this.rentCollected += rent
         } else {
             if (player.decideBuyProperty(game, this)) {
@@ -138,7 +138,7 @@ class PropertyTile extends Tile {
         return c
     }
 
-    getRentOwed() {
+    getRentOwed(game) {
         if (this.improvementLevel==0 && game.groupIsMonopoly(this.group)) {
             return this.rents[this.improvementLevel] * 2
         }
@@ -191,7 +191,7 @@ class TaxTile extends Tile {
         this.amount = amount
     }
 
-    arrive() {
+    arrive(game) {
         game.payTo(game.getPlayer(), null, this.amount)
     }
 
