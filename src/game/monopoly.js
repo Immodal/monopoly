@@ -103,9 +103,9 @@ class Monopoly {
                 const player = game.getPlayer()
                 for (const p of game.getOwnedProperties(player)) {
                     if (p.improvementLevel>=p.rents.length-1) {
-                        game.payTo(player, null, 115)
+                        game.payTo(player, null, 115, Monopoly.PAY_TYPES.PROPERTY)
                     } else if (p.improvementLevel>0) {
-                        game.payTo(player, null, 40 * p.improvementLevel)
+                        game.payTo(player, null, 40 * p.improvementLevel, Monopoly.PAY_TYPES.PROPERTY)
                     }
                 }
             }
@@ -125,7 +125,7 @@ class Monopoly {
                 game.goToClosestUtility(player, true, false)
                 const utility = game.tiles[player.pos]
                 if (utility.owned && utility.owner != player) {
-                    game.payTo(player, utility.owner, (game.rollDie() + game.rollDie()) * 10)
+                    game.payTo(player, utility.owner, (game.rollDie() + game.rollDie()) * 10, Monopoly.PAY_TYPES.RENTAL)
                 } else if (!utility.owned && player.decideBuyProperty(game, this)) {
                     game.buyProperty(player, utility)
                 }
@@ -137,7 +137,7 @@ class Monopoly {
                 game.goToClosestRailroad(player, true, false)
                 const rail = game.tiles[player.pos]
                 if (rail.owned && rail.owner != player) {
-                    game.payTo(player, rail.owner, rail.getRentOwed(game)*2)
+                    game.payTo(player, rail.owner, rail.getRentOwed(game)*2, Monopoly.PAY_TYPES.RENTAL)
                 } else if (!rail.owned && player.decideBuyProperty(game, this)) {
                     game.buyProperty(player, rail)
                 }
@@ -152,9 +152,9 @@ class Monopoly {
                 const player = game.getPlayer()
                 for (const p of game.getOwnedProperties(player)) {
                     if (p.improvementLevel>=p.rents.length-1) {
-                        game.payTo(player, null, 100)
+                        game.payTo(player, null, 100, Monopoly.PAY_TYPES.PROPERTY)
                     } else if (p.improvementLevel>0) {
-                        game.payTo(player, null, 25 * p.improvementLevel)
+                        game.payTo(player, null, 25 * p.improvementLevel, Monopoly.PAY_TYPES.PROPERTY)
                     }
                 }
             }
@@ -168,6 +168,12 @@ class Monopoly {
         new Card("Your building loan matures. Receive $150.", (game) => game.payTo(null, game.getPlayer(), 150)),
         new Card("Your have won a crossword competition. Collect $100.", (game) => game.payTo(null, game.getPlayer(), 100))
     ]
+    static PAY_TYPES = {
+        GO: 0,
+        RENTAL: 1,
+        BANKRUPTCY: 2,
+        PROPERTY:3,
+    }
     static SCENARIOS = {
         NONE: 0,
         IMP_COMP: 1
@@ -195,13 +201,6 @@ class Monopoly {
         this._banks = [new Player("Bank0"), new Player("Bank1"), new Player("Bank2"), new Player("Bank3")]
         this.noPay = false
         this.noBuy = false
-        this.cashflow = {}
-        this.cashflowLastRound = {}
-        for (const p of this.players) {
-            this.cashflow[p.id] = 0
-            this.cashflowLastRound[p.id] = 0
-        }
-
     }
 
     improvementComparisonSetup(level) {
@@ -383,10 +382,6 @@ class Monopoly {
             this.nthDouble = 0
             if (oldInd>this.playerInd) {
                 this.nRounds += 1
-                for (const id in this.cashflow) {
-                    this.cashflowLastRound[id] = this.cashflow[id]
-                    this.cashflow[id] = 0
-                }
             }
         }
     }
@@ -440,7 +435,7 @@ class Monopoly {
         } else if (player.canAfford(property.price)) {
             this.log(`${player.name} has bought ${property.name}`)
             this.transferPropertyTo(player, property)
-            this.payTo(property.owner, null, property.price)
+            this.payTo(property.owner, null, property.price, Monopoly.PAY_TYPES.PROPERTY)
             return true
         } else {
             this.log(`Failed to buy ${property.name} (${property.price}), ${player.name} doesn't have enough cash (${player.cash})`)
@@ -479,11 +474,10 @@ class Monopoly {
         return card
     }
 
-    payTo(payer, recipient, amount) {
+    payTo(payer, recipient, amount, payType=null) {
         if (this.noPay || payer==recipient) return
         else if (!payer) {
-            recipient.cash += amount
-            this.cashflow[recipient.id] += amount
+            recipient.addCash(amount, payType)
             this.log(`$${amount} given to ${recipient.name}`)
         } else if (payer.isBankrupt) {
             this.log(`***_____ ${payer.name} IS NO LONGER IN THE GAME! _____***`)
@@ -493,12 +487,10 @@ class Monopoly {
             this.log("***_____ MORTGAGING AND SELLING PROPERTY NOT IMPLEMENTED _____***")
             this.bankrupt(payer, recipient)
         } else {
-            payer.cash -= amount
-            this.cashflow[payer.id] -= amount
+            payer.addCash(-amount, payType)
             this.log(`$${amount} taken from ${payer.name}`)
             if (recipient) {
-                recipient.cash += amount
-                this.cashflow[recipient.id] += amount
+                recipient.addCash(amount, payType)
                 this.log(`$${amount} given to ${recipient.name}`)
             }
         }
@@ -506,11 +498,11 @@ class Monopoly {
 
     bankrupt(payer, recipient=null) {
         this.log(`${payer.name} is bankrupt!`)
-        this.payTo(payer, recipient, payer.cash)
+        this.payTo(payer, recipient, payer.cash, Monopoly.PAY_TYPES.BANKRUPTCY)
         for (const p of this.getOwnedProperties(payer)) {
             if (p.improvementLevel>0) {
                 this.log(`Selling houses on ${p.name}`)
-                this.payTo(null, recipient, p.improvementLevel*p.houseCost*Monopoly.HOUSE_SALE_MULT)
+                this.payTo(null, recipient, p.improvementLevel*p.houseCost*Monopoly.HOUSE_SALE_MULT, Monopoly.PAY_TYPES.BANKRUPTCY)
                 p.improvementLevel = 0
             }
             this.transferPropertyTo(recipient, p)

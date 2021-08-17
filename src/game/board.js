@@ -189,11 +189,23 @@ class Board {
         const tbl1Y = y0 + this.statTxtH + rowMargin
         const playerX = x0
         this.text("Players", playerX, tbl1Y, LEFT, TOP)
-        const cashX = x0 + this.playerSize + colMargin
+        const cashX = x0 + this.playerSize*0.8 + colMargin
         this.text("Cash", cashX, tbl1Y, LEFT, TOP)
-        const cashflowX = cashX + this.playerSize + colMargin
-        this.text("Cashflow", cashflowX, tbl1Y, LEFT, TOP)
-        const propsX = cashflowX + this.playerSize + colMargin
+        const goX = cashX + this.playerSize*0.8 + colMargin
+        this.text("Go+", goX, tbl1Y, LEFT, TOP)
+        const propX = goX + this.playerSize*0.8 + colMargin
+        this.text("Prop-", propX, tbl1Y, LEFT, TOP)
+        const rentX = propX + this.playerSize*0.8 + colMargin
+        this.text("Rent+", rentX, tbl1Y, LEFT, TOP)
+        const rentX2 = rentX + this.playerSize*0.8 + colMargin
+        this.text("Rent-", rentX2, tbl1Y, LEFT, TOP)
+        const bankruptX = rentX2 + this.playerSize*0.8 + colMargin
+        this.text("Brupt+", bankruptX, tbl1Y, LEFT, TOP)
+        const otherX = bankruptX + this.playerSize*0.8 + colMargin
+        this.text("Other+", otherX, tbl1Y, LEFT, TOP)
+        const otherX2 = otherX + this.playerSize*0.8 + colMargin
+        this.text("Other-", otherX2, tbl1Y, LEFT, TOP)
+        const propsX = otherX2 + this.playerSize*0.8 + colMargin
         this.text("Properties", propsX, tbl1Y, LEFT, TOP)
         // Content
         const tbl1ContentY = tbl1Y + this.statTxtH + rowMargin
@@ -211,10 +223,20 @@ class Board {
             circle(playerX + this.playerSize/2, playerY, this.playerSize)
             // Cash
             this.text(`${players[i].cash}`, cashX, playerY, LEFT, CENTER)
-            // Cashflow
-            this.text(`${game.cashflowLastRound[players[i].id]}`, cashflowX, playerY, LEFT, CENTER, 
-                game.cashflowLastRound[players[i].id]<0 ? "#8b0000" : 0
-            )
+            // Go Income
+            this.text(`${players[i].accounts[Player.PAY_TYPES.GO_INCOME]}`, goX, playerY, LEFT, CENTER)
+            // Property Expense
+            this.text(`${players[i].accounts[Player.PAY_TYPES.PROPERTY_EXPENSE]}`, propX, playerY, LEFT, CENTER, "#bb0000")
+            // Rent Income
+            this.text(`${players[i].accounts[Player.PAY_TYPES.RENT_INCOME]}`, rentX, playerY, LEFT, CENTER)
+            // Rent Expense
+            this.text(`${players[i].accounts[Player.PAY_TYPES.RENT_EXPENSE]}`, rentX2, playerY, LEFT, CENTER, "#bb0000")
+            // Bankrupt Income
+            this.text(`${players[i].accounts[Player.PAY_TYPES.BANKRUPTCY_INCOME]}`, bankruptX, playerY, LEFT, CENTER)
+            // Other Income
+            this.text(`${players[i].accounts[Player.PAY_TYPES.OTHER_INCOME]}`, otherX, playerY, LEFT, CENTER)
+            // Other Expense
+            this.text(`${players[i].accounts[Player.PAY_TYPES.OTHER_EXPENSE]}`, otherX2, playerY, LEFT, CENTER, "#bb0000")
             // Properties
             const props = game.getOwnedProperties(players[i])
             props.sort((a, b) => {

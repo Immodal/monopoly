@@ -19,7 +19,7 @@ class GoTile extends Tile {
 
     arrive(game) {
         game.log(`Passed Go, collecting ${this.amount}`)
-        game.payTo(null, game.getPlayer(), this.amount)
+        game.payTo(null, game.getPlayer(), this.amount, Monopoly.PAY_TYPES.GO)
     }
 
     clone() {
@@ -47,7 +47,7 @@ class _UtilityTile extends Tile {
         if(this.owner && player!=this.owner) {
             const rent = this.getRentOwed(game)
             game.log(`${player.name} owes ${this.owner.name} $${rent} in rent`)
-            game.payTo(player, this.owner, this.getRentOwed(game))
+            game.payTo(player, this.owner, this.getRentOwed(game), Monopoly.PAY_TYPES.RENTAL)
             this.rentCollected += rent
         } else {
             if (player.decideBuyProperty(game, this)) {
@@ -120,7 +120,7 @@ class PropertyTile extends Tile {
         } else if(this.owner && player!=this.owner) {
             const rent = this.getRentOwed(game)
             game.log(`${player.name} owes ${this.owner.name} $${rent} in rent`)
-            game.payTo(player, this.owner, rent)
+            game.payTo(player, this.owner, rent, Monopoly.PAY_TYPES.RENTAL)
             this.rentCollected += rent
         } else {
             if (player.decideBuyProperty(game, this)) {
@@ -163,7 +163,7 @@ class PropertyTile extends Tile {
             if (this.owner.canAfford(this.houseCost)) {
                 this.improvementLevel += 1
                 game.log(`${impIsHotel ? 'Hotel' : 'House'} built on ${this.name}`)
-                game.payTo(this.owner, null, this.houseCost)
+                game.payTo(this.owner, null, this.houseCost, Monopoly.PAY_TYPES.PROPERTY)
             } else {
                 game.log(`${this.owner.name}(${this.owner.cash}) can't afford to build ${impIsHotel ? 'Hotel' : 'House'}(${this.houseCost}) on ${this.name}`)
             }
