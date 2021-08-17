@@ -126,7 +126,7 @@ class Board {
             const wins = game.winner ? ` ${game.winner.name} wins!` : ''
             this.text(`Game Ended.${wins}`, this.statX + this.playerSize*3, this.statY, LEFT, TOP)
         } else if (roundLim>0 && game.nRounds >= roundLim) {
-            this.text(`Round limit reached. This game will go on indefinitely if no trades occur.`, this.statX + this.playerSize*3, this.statY, LEFT, TOP)
+            this.text(`Round limit reached. Game is endless unless trades resulting in monopolies occur.`, this.statX + this.playerSize*2.5, this.statY, LEFT, TOP)
         }
         const startY = this.statY + this.statTxtH
         const playerEndY = game.scenario == Monopoly.SCENARIOS.IMP_COMP ? startY : this.drawPlayerTable(game, this.statX, startY, this.statXLim)
