@@ -190,6 +190,7 @@ class Monopoly {
         this.nthDouble = 0
         this.log_turns = false
         this.ended = false
+        this.winner = null
 
         // Analytics
         this.nRounds = 0
@@ -396,8 +397,10 @@ class Monopoly {
 
         if (rem.length <= 1) {
             this.ended = true
-            if (rem.length == 1) this.log(`${rem[0].name} has won the game!!`)
-            else this.log("***_____ GAME ENDED WITH NO WINNER _____***")
+            if (rem.length == 1) {
+                this.winner = rem[0]
+                this.log(`${rem[0].name} has won the game!!`)
+            } else this.log("***_____ GAME ENDED WITH NO WINNER _____***")
         }
 
         return this.ended

@@ -3,6 +3,7 @@ const NX = 1
 const NY = 1
 const CANVAS_W = BOARD_SIZE * NX
 const CANVAS_H = BOARD_SIZE * NY
+const ROUND_LIM = 200
 
 let boards = []
 let games = []
@@ -28,7 +29,7 @@ function setup() {
 function draw() {
     background(255)
     for (let i=0; i<boards.length; i++) {
-        if (games[i].nRounds<5000) games[i].turn()
-        boards[i].draw(games[i])
+        if (games[i].nRounds<ROUND_LIM) games[i].turn()
+        boards[i].draw(games[i], ROUND_LIM)
     }
 }

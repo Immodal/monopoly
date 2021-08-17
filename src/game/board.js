@@ -106,8 +106,8 @@ class Board {
         }
     }
 
-    draw(game) {
-        this.drawStats(game)
+    draw(game, roundLim) {
+        this.drawStats(game, roundLim)
         this.drawTiles(game)
         this.drawPlayers(game)
     }
@@ -120,8 +120,14 @@ class Board {
         text(t, x, y)
     }
 
-    drawStats(game) {
+    drawStats(game, roundLim=0) {
         this.text(`Rounds: ${game.nRounds}`, this.statX, this.statY, LEFT, TOP)
+        if (game.ended) {
+            const wins = game.winner ? ` ${game.winner.name} wins!` : ''
+            this.text(`Game Ended.${wins}`, this.statX + this.playerSize*3, this.statY, LEFT, TOP)
+        } else if (roundLim>0 && game.nRounds >= roundLim) {
+            this.text(`Round limit reached. This game will go on indefinitely if no trades occur.`, this.statX + this.playerSize*3, this.statY, LEFT, TOP)
+        }
         const startY = this.statY + this.statTxtH
         const playerEndY = game.scenario == Monopoly.SCENARIOS.IMP_COMP ? startY : this.drawPlayerTable(game, this.statX, startY, this.statXLim)
         const graphH = (this.statYLim - (playerEndY + this.statMargin) - this.statMargin)/2
