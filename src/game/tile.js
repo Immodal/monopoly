@@ -66,7 +66,7 @@ class _UtilityTile extends Tile {
 
 
 class UtilityTile extends _UtilityTile {
-    getRentOwed(game) {
+    getRentOwed(game, rollTotal=0) {
         let nOwned = -1
         for (const uName in game.utilities) {
             const u = game.utilities[uName]
@@ -74,8 +74,9 @@ class UtilityTile extends _UtilityTile {
                 nOwned += 1
             }
         }
+        rollTotal = rollTotal>0 ? rollTotal : game.die1 + game.die2
 
-        return nOwned>=0 ? (game.die1 + game.die2) * this.rents[nOwned] : 0
+        return nOwned>=0 ? rollTotal * this.rents[nOwned] : 0
     }
 }
 
@@ -139,7 +140,8 @@ class PropertyTile extends Tile {
     }
 
     getRentOwed(game) {
-        if (this.improvementLevel==0 && game.groupIsMonopoly(this.group)) {
+        if (!this.owner) return 0
+        else if (this.improvementLevel==0 && game.groupIsMonopoly(this.group)) {
             return this.rents[this.improvementLevel] * 2
         }
         return this.rents[this.improvementLevel]

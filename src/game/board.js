@@ -112,9 +112,9 @@ class Board {
         this.drawPlayers(game)
     }
 
-    text(t, x, y, hAlign, vAlign) {
+    text(t, x, y, hAlign, vAlign, clr=0) {
         noStroke()
-        fill(0)
+        fill(clr)
         textSize(this.statTxtH)
         textAlign(hAlign, vAlign)
         text(t, x, y)
@@ -191,7 +191,9 @@ class Board {
         this.text("Players", playerX, tbl1Y, LEFT, TOP)
         const cashX = x0 + this.playerSize + colMargin
         this.text("Cash", cashX, tbl1Y, LEFT, TOP)
-        const propsX = cashX + this.playerSize + colMargin
+        const cashflowX = cashX + this.playerSize + colMargin
+        this.text("Cashflow", cashflowX, tbl1Y, LEFT, TOP)
+        const propsX = cashflowX + this.playerSize + colMargin
         this.text("Properties", propsX, tbl1Y, LEFT, TOP)
         // Content
         const tbl1ContentY = tbl1Y + this.statTxtH + rowMargin
@@ -209,6 +211,10 @@ class Board {
             circle(playerX + this.playerSize/2, playerY, this.playerSize)
             // Cash
             this.text(`${players[i].cash}`, cashX, playerY, LEFT, CENTER)
+            // Cashflow
+            this.text(`${game.cashflowLastRound[players[i].id]}`, cashflowX, playerY, LEFT, CENTER, 
+                game.cashflowLastRound[players[i].id]<0 ? "#8b0000" : 0
+            )
             // Properties
             const props = game.getOwnedProperties(players[i])
             props.sort((a, b) => {

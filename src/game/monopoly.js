@@ -195,6 +195,13 @@ class Monopoly {
         this._banks = [new Player("Bank0"), new Player("Bank1"), new Player("Bank2"), new Player("Bank3")]
         this.noPay = false
         this.noBuy = false
+        this.cashflow = {}
+        this.cashflowLastRound = {}
+        for (const p of this.players) {
+            this.cashflow[p.id] = 0
+            this.cashflowLastRound[p.id] = 0
+        }
+
     }
 
     improvementComparisonSetup(level) {
@@ -250,6 +257,20 @@ class Monopoly {
     turn(die1=null, die2=null, passGo=true, callArrive=true) {
         if (this.ended) return 
 
+        const improveProperties = (plyr, gm) => {
+            const props = this.getOwnedProperties()
+            props.sort((a,b) => {
+                if (a.improvementLevel>b.improvementLevel) return 1
+                else if(a.improvementLevel==b.improvementLevel) return 0
+                else return -1
+            })
+            for (const t of this.getOwnedProperties(plyr)) {
+                if (t instanceof PropertyTile && plyr.decideImproveProperty(gm, t)) {
+                    t.improve(gm)
+                }
+            }
+        }
+
         const player = this.players[this.playerInd]
         player.nTurns += 1
         die1 = Number.isInteger(die1) ? die1 : this.rollDie()
@@ -267,7 +288,9 @@ class Monopoly {
             if (die1 == die2) {
                 this.log(`Rolled Double, leaving Jail`)
                 player.jailTime = 0
+                improveProperties(player, this)
                 this.move(player, die1 + die2, passGo, callArrive)
+                improveProperties(player, this)
             } else {
                 player.jailTime -= 1
                 this.log(`Didn't roll double, ${player.jailTime} Turns until release`)
@@ -282,10 +305,14 @@ class Monopoly {
             toNextPlayer = true
         } else if (die1 == die2) {
             this.log(`Rolled Double ${this.nthDouble+1}, continuing turn`)
+            improveProperties(player, this)
             this.move(player, die1 + die2, passGo, callArrive)
+            improveProperties(player, this)
             this.nthDouble += 1
         } else {
+            improveProperties(player, this)
             this.move(player, die1 + die2, passGo, callArrive)
+            improveProperties(player, this)
             toNextPlayer = true
         }
 
@@ -354,7 +381,13 @@ class Monopoly {
                 this.playerInd = (this.playerInd + 1) % this.players.length
             }
             this.nthDouble = 0
-            if (oldInd>this.playerInd) this.nRounds += 1
+            if (oldInd>this.playerInd) {
+                this.nRounds += 1
+                for (const id in this.cashflow) {
+                    this.cashflowLastRound[id] = this.cashflow[id]
+                    this.cashflow[id] = 0
+                }
+            }
         }
     }
 
@@ -450,6 +483,7 @@ class Monopoly {
         if (this.noPay || payer==recipient) return
         else if (!payer) {
             recipient.cash += amount
+            this.cashflow[recipient.id] += amount
             this.log(`$${amount} given to ${recipient.name}`)
         } else if (payer.isBankrupt) {
             this.log(`***_____ ${payer.name} IS NO LONGER IN THE GAME! _____***`)
@@ -460,9 +494,11 @@ class Monopoly {
             this.bankrupt(payer, recipient)
         } else {
             payer.cash -= amount
+            this.cashflow[payer.id] -= amount
             this.log(`$${amount} taken from ${payer.name}`)
             if (recipient) {
                 recipient.cash += amount
+                this.cashflow[recipient.id] += amount
                 this.log(`$${amount} given to ${recipient.name}`)
             }
         }
