@@ -1,6 +1,6 @@
-const BOARD_SIZE = 500
-const NX = 3
-const NY = 2
+const BOARD_SIZE = 700
+const NX = 1
+const NY = 1
 const CANVAS_W = BOARD_SIZE * NX
 const CANVAS_H = BOARD_SIZE * NY
 
@@ -17,9 +17,9 @@ function setup() {
             boards.push(new Board(j*BOARD_SIZE, i*BOARD_SIZE, BOARD_SIZE))
             const game = new Monopoly([
                 new Player('p1'),new Player('p2'),new Player('p3'),new Player('p4'),
-                new Player('p5'),new Player('p6'),new Player('p7'),new Player('p8')
+                //new Player('p5'),new Player('p6'),new Player('p7'),new Player('p8')
             ])
-            game.improvementComparisonSetup(i*NX+j)
+            //game.improvementComparisonSetup(i*NX+j)
             games.push(game)
         }
     }

@@ -197,19 +197,31 @@ class Monopoly {
         this.noBuy = false
     }
 
-    improvementComparisonSetup(level, singleOwnerRail=true, singleOwnerUtils=true) {
+    improvementComparisonSetup(level) {
+        for (const tn in this.properties) {
+            this.transferPropertyTo(this._banks[0], this.properties[tn])
+            this.properties[tn].improvementLevel = level
+        }
         let railCount = 0
-        let utilCount = 0
-        for (const t of this.ownableTiles) {
-            if (singleOwnerRail && t instanceof RailTile) {
-                this.transferPropertyTo(this._banks[railCount], t)
+        let loopCount = 0
+        for (const tn in this.rails) {
+            this.transferPropertyTo(this._banks[railCount], this.rails[tn])
+            this.rails[tn].improvementLevel = level
+            loopCount += 1
+            if (loopCount>level) {
                 railCount += 1
-            } else if (singleOwnerUtils && t instanceof UtilityTile) {
-                this.transferPropertyTo(this._banks[utilCount], t)
+                loopCount = 0
+            }
+        }
+        loopCount = 0
+        let utilCount = 0
+        for (const tn in this.utilities) {
+            this.transferPropertyTo(this._banks[utilCount], this.utilities[tn])
+            this.utilities[tn].improvementLevel = level
+            loopCount += 1
+            if (loopCount>level) {
                 utilCount += 1
-            } else {
-                this.transferPropertyTo(this._banks[0], t)
-                t.improvementLevel = level
+                loopCount = 0
             }
         }
 
