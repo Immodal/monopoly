@@ -36,7 +36,7 @@ class Player {
             if (amount>0) this.accounts[Player.PAY_TYPES.RENT_INCOME] += amount
             else this.accounts[Player.PAY_TYPES.RENT_EXPENSE] -= amount
         } else if (gamePayType == Monopoly.PAY_TYPES.BANKRUPTCY) {
-            this.accounts[Player.PAY_TYPES.BANKRUPTCY_INCOME] += amount
+            if (amount>0) this.accounts[Player.PAY_TYPES.BANKRUPTCY_INCOME] += amount
         } else if (gamePayType == Monopoly.PAY_TYPES.PROPERTY) {
             this.accounts[Player.PAY_TYPES.PROPERTY_EXPENSE] -= amount
         }else {
