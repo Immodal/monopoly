@@ -120,8 +120,8 @@ class PropertyTile extends Tile {
         } else if(this.owner && player!=this.owner) {
             const rent = this.getRentOwed(game)
             game.log(`${player.name} owes ${this.owner.name} $${rent} in rent`)
+            if (player.canAfford(rent)) this.rentCollected += rent
             game.payTo(player, this.owner, rent, Monopoly.PAY_TYPES.RENTAL)
-            this.rentCollected += rent
         } else {
             if (player.decideBuyProperty(game, this)) {
                 game.buyProperty(player, this)
